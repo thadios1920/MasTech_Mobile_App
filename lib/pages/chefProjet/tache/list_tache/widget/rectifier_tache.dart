@@ -34,8 +34,8 @@ class _RectifierTacheState extends State<RectifierTache> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                "tâches à rectifier",
+              const Text(
+                "tâches rectifiées",
                 style: TextStyle(
                   color: Colors.black,
                   fontWeight: FontWeight.w400,
@@ -44,29 +44,35 @@ class _RectifierTacheState extends State<RectifierTache> {
               ),
               Text(
                 "Total tâches: ${taches.length}",
-                style: themeData.textTheme.caption,
+                style: themeData.textTheme.bodySmall,
               ),
             ],
           ),
-          SizedBox(
+          const SizedBox(
             height: 10.0,
           ),
-          Container(
-              child: ListView.separated(
+          ListView.separated(
             shrinkWrap: true,
-            physics: NeverScrollableScrollPhysics(),
+            physics: const NeverScrollableScrollPhysics(),
             itemBuilder: (BuildContext context, int index) {
               return TacheCard(
                 tache: taches[index],
+                onTacheDeleted: (tacheSupprimee) {
+                  // si la suppression a réussi, fermer la page actuelle
+                  setState(() {
+                    taches
+                        .removeWhere((tache) => tache.id == tacheSupprimee.id);
+                  });
+                },
               );
             },
             separatorBuilder: (BuildContext context, int index) {
-              return SizedBox(
+              return const SizedBox(
                 height: 10.0,
               );
             },
             itemCount: taches.length,
-          )),
+          ),
         ],
       ),
     );

@@ -1,25 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:pfe_mobile_app/models/chantier.dart';
 
 class BarChart extends StatelessWidget {
-  final List<double> expenses;
+  final List<double> stats;
+  final List<Chantier> chantierList;
 
-  const BarChart(this.expenses, {super.key});
+  const BarChart(this.stats, this.chantierList,
+      {super.key}); // Correction de la syntaxe du constructeur
 
   @override
   Widget build(BuildContext context) {
     double mostExpensive = 0;
-    expenses.forEach((double price) {
+    for (var price in stats) {
       if (price > mostExpensive) {
         mostExpensive = price;
       }
-    });
+    }
 
     return Padding(
       padding: const EdgeInsets.all(12.0),
       child: Column(
         children: <Widget>[
           const Text(
-            'Weekly Spending',
+            'Statistiques hebdomadaires',
             style: TextStyle(
               fontSize: 20.0,
               fontWeight: FontWeight.bold,
@@ -58,39 +61,19 @@ class BarChart extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: <Widget>[
               Bar(
-                label: 'Di',
-                amountSpent: expenses[0],
+                label: 'Estim',
+                amountSpent: stats[0],
                 mostExpensive: mostExpensive,
               ),
               Bar(
-                label: 'Lu',
-                amountSpent: expenses[1],
+                label: 'Elab',
+                amountSpent: stats[1],
                 mostExpensive: mostExpensive,
               ),
               Bar(
-                label: 'Ma',
-                amountSpent: expenses[2],
-                mostExpensive: mostExpensive,
-              ),
-              Bar(
-                label: 'Me',
-                amountSpent: expenses[3],
-                mostExpensive: mostExpensive,
-              ),
-              Bar(
-                label: 'Je',
-                amountSpent: expenses[4],
-                mostExpensive: mostExpensive,
-              ),
-              Bar(
-                label: 'Ve',
-                amountSpent: expenses[5],
-                mostExpensive: mostExpensive,
-              ),
-              Bar(
-                label: 'Sa',
-                amountSpent: expenses[6],
-                mostExpensive: mostExpensive,
+                label: 'Fab',
+                amountSpent: stats[2],
+                mostExpensive: 100,
               ),
             ],
           ),
@@ -119,7 +102,7 @@ class Bar extends StatelessWidget {
     return Column(
       children: <Widget>[
         Text(
-          '\$${amountSpent.toStringAsFixed(2)}',
+          '%${amountSpent.toStringAsFixed(2)}',
           style: const TextStyle(
             fontWeight: FontWeight.w600,
           ),

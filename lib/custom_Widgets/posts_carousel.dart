@@ -122,7 +122,7 @@ class PostsCarousel extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Padding(
-          padding: EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 10.0),
+          padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 10.0),
           child: Text(
             title,
             style: const TextStyle(
@@ -132,7 +132,7 @@ class PostsCarousel extends StatelessWidget {
             ),
           ),
         ),
-        Container(
+        SizedBox(
           height: 400.0,
           child: plans.isEmpty
               ? const Center(

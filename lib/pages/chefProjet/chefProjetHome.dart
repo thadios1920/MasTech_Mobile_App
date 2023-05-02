@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:pfe_mobile_app/pages/chefProjet/chefProjetHeader.dart';
-import 'package:pfe_mobile_app/pages/chefProjet/create_task.dart';
+import 'package:pfe_mobile_app/pages/chefProjet/tache/create_task.dart';
 import 'package:pfe_mobile_app/pages/chefProjet/list_chantier.dart';
-import 'package:pfe_mobile_app/pages/chefProjet/taskListPage.dart';
+import 'package:pfe_mobile_app/services/auth_service.dart';
+import 'package:pfe_mobile_app/services/helpers/config.dart';
 
 import '../settings.dart';
 
@@ -20,31 +21,16 @@ class _ChefProjetHomeState extends State<ChefProjetHome> {
   Widget build(BuildContext context) {
     var container;
     if (currentPage == DrawerSections.dashboard) {
-      container = ListChantier();
-    }
-    // else if (currentPage == DrawerSections.contacts) {
-    //   container = CreateTask();
-    // }
-    // else if (currentPage == DrawerSections.events) {
-    //   container = EventsPage();
-    // }
-    //else if (currentPage == DrawerSections.notes) {
-    //   container = NotesPage();
-    //}
-    else if (currentPage == DrawerSections.settings) {
+      container = const ListChantier();
+    } else if (currentPage == DrawerSections.settings) {
       container = ProfileEditPage();
+    } else if (currentPage == DrawerSections.logout) {
+      AuthService.logout(context);
     }
-    // else if (currentPage == DrawerSections.notifications) {
-    //   container = NotificationsPage();
-    // } else if (currentPage == DrawerSections.privacy_policy) {
-    //   container = PrivacyPolicyPage();
-    // } else if (currentPage == DrawerSections.send_feedback) {
-    //   container = SendFeedbackPage();
-    // }
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.indigo[800],
-        title: const Text("MasTech"),
+        title: const Text(Config.appName),
       ),
       body: container,
       drawer: Drawer(
@@ -86,6 +72,8 @@ class _ChefProjetHomeState extends State<ChefProjetHome> {
               currentPage == DrawerSections.privacy_policy ? true : false),
           menuItem(8, "Send feedback", Icons.feedback_outlined,
               currentPage == DrawerSections.send_feedback ? true : false),
+          menuItem(9, "Deconnexion", Icons.logout,
+              currentPage == DrawerSections.logout ? true : false),
         ],
       ),
     );
@@ -114,6 +102,8 @@ class _ChefProjetHomeState extends State<ChefProjetHome> {
               currentPage = DrawerSections.privacy_policy;
             } else if (id == 8) {
               currentPage = DrawerSections.send_feedback;
+            } else if (id == 9) {
+              currentPage = DrawerSections.logout;
             }
           });
         },
@@ -155,4 +145,5 @@ enum DrawerSections {
   notifications,
   privacy_policy,
   send_feedback,
+  logout
 }

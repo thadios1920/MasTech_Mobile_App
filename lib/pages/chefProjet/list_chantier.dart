@@ -7,7 +7,6 @@ import '../../custom_Widgets/bar_chart.dart';
 import '../../helpers/color_helper.dart';
 import '../../models/chantier.dart';
 import '../../services/api_Client.dart';
-import 'chantierDetails.dart';
 
 class ListChantier extends StatefulWidget {
   const ListChantier({super.key});
@@ -35,7 +34,18 @@ class _ListChantierState extends State<ListChantier> {
     }
   }
 
-  final List<double> weeklySpending = [10, 15, 25, 14, 45, 12, 78];
+  List<double> chantierStats = [];
+  getStats(fabPercent, elabPercent, estimPercent) {
+    chantierStats = [
+      fabPercent.toDouble(),
+      elabPercent.toDouble(),
+      estimPercent.toDouble(),
+      14,
+      45,
+      12,
+      78
+    ];
+  }
 
   _buildChantier(Chantier chantier) {
     return GestureDetector(
@@ -77,23 +87,29 @@ class _ListChantierState extends State<ListChantier> {
                   ),
                 ),
                 Text(
-                  '${chantier.lieu}',
+                  chantier.lieu!,
                   style: const TextStyle(
                     fontSize: 18.0,
                     fontWeight: FontWeight.w600,
                     color: Colors.redAccent,
                   ),
                 ),
+                chantier.etat!
+                    ? const Icon(
+                        Icons.done_outline_rounded,
+                        color: Colors.green,
+                      )
+                    : const SizedBox()
               ],
             ),
             const SizedBox(height: 10.0),
             LayoutBuilder(
               builder: (BuildContext context, BoxConstraints constraints) {
-                final double maxBarWidth = 10;
-                const double percent =
-                    0.25; // ici en affecte le pourcentage d'avancement du chantier
+                final double maxBarWidth = constraints.maxWidth;
+                double percent = chantier.percentAvancement!
+                    .toDouble(); // ici en affecte le pourcentage d'avancement du chantier
 
-                double barWidth = 10 * maxBarWidth;
+                double barWidth = maxBarWidth * percent / 100;
 
                 if (barWidth < 0) {
                   barWidth = 0;
@@ -127,39 +143,38 @@ class _ListChantierState extends State<ListChantier> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: CustomScrollView(
-        slivers: <Widget>[
-          SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (BuildContext context, int index) {
-                if (index == 0) {
-                  return Container(
-                    margin: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 10.0),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Colors.black12,
-                          offset: Offset(0, 2),
-                          blurRadius: 6.0,
-                        ),
-                      ],
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    child: BarChart(weeklySpending),
-                  );
-                } else {
-                  final Chantier chantier = chantiers[index - 1];
+    getStats(90, 50, 100);
+    return CustomScrollView(
+      slivers: <Widget>[
+        SliverList(
+          delegate: SliverChildBuilderDelegate(
+            (BuildContext context, int index) {
+              if (index == 0) {
+                return Container(
+                  margin: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 10.0),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black12,
+                        offset: Offset(0, 2),
+                        blurRadius: 6.0,
+                      ),
+                    ],
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  child: BarChart(chantierStats, chantiers),
+                );
+              } else {
+                final Chantier chantier = chantiers[index - 1];
 
-                  return _buildChantier(chantier);
-                }
-              },
-              childCount: 1 + chantiers.length,
-            ),
+                return _buildChantier(chantier);
+              }
+            },
+            childCount: 1 + chantiers.length,
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

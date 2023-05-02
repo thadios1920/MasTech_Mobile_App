@@ -7,7 +7,9 @@ import '../../tache_detail/tache_detail.dart';
 
 class TacheCard extends StatefulWidget {
   final Tache tache;
-  TacheCard({super.key, required this.tache});
+  final Function(Tache) onTacheDeleted;
+  const TacheCard(
+      {super.key, required this.tache, required this.onTacheDeleted});
 
   @override
   State<TacheCard> createState() => _TacheCardState();
@@ -15,14 +17,13 @@ class TacheCard extends StatefulWidget {
 
 class _TacheCardState extends State<TacheCard> {
   ChefChantier chefChantier = ChefChantier();
-  Future<void> _updateTask(Tache tache, int idTask) async {
-    await ApiClient.modifierTache('/taches/$idTask', tache);
-    setState(() {});
+  Future<void> _validerTask(int idTask) async {
+    await ApiClient.modifierTache('/taches/$idTask/valider');
+    widget.onTacheDeleted(widget.tache);
   }
 
   Future<void> _deleteTask(int idTask) async {
     await ApiClient.supprimmerTache('/taches/$idTask');
-    setState(() {});
   }
 
   @override
@@ -43,8 +44,15 @@ class _TacheCardState extends State<TacheCard> {
           icon: Icons.delete_forever,
           foregroundColor: Colors.white,
           onTap: () {
-            _deleteTask(widget.tache.id!);
-            setState(() {});
+            try {
+              _deleteTask(widget.tache.id!);
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Tâche supprimée')));
+            } catch (e) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Probléme de connexion !!')));
+            }
           },
         ),
       ],
@@ -60,8 +68,15 @@ class _TacheCardState extends State<TacheCard> {
                 type: widget.tache.type,
                 statut: true,
                 etat: widget.tache.etat);
-            await _updateTask(tache, widget.tache.id!);
-            setState(() {});
+            try {
+              await _validerTask(widget.tache.id!);
+              setState(() {});
+              ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Tache validée !!')));
+            } catch (e) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Probléme de connexion !!')));
+            }
           },
         ),
       ],
@@ -156,8 +171,8 @@ class _TacheCardState extends State<TacheCard> {
                         "${tache.type}",
                         style: TextStyle(
                             color: tache.type == "rectification"
-                                ? Color.fromRGBO(247, 71, 104, 1)
-                                : Color.fromRGBO(97, 201, 200, 1),
+                                ? const Color.fromRGBO(247, 71, 104, 1)
+                                : const Color.fromRGBO(97, 201, 200, 1),
                             fontSize: 16.0,
                             fontWeight: FontWeight.w400),
                       ),

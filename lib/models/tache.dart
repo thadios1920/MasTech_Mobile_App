@@ -7,6 +7,8 @@ class Tache {
   bool? statut;
   String? createdAt;
   String? updatedAt;
+  String? dateFin;
+  String? imageURL;
   int? chantierId;
   int? chefChantierId;
 
@@ -16,6 +18,8 @@ class Tache {
       this.description,
       this.type,
       this.etat,
+      this.imageURL,
+      this.dateFin,
       this.statut,
       this.createdAt,
       this.updatedAt,
@@ -27,10 +31,12 @@ class Tache {
     titre = json['titre'];
     description = json['description'];
     type = json['type'];
+    imageURL = json['imageURL'];
     etat = json['etat'];
     statut = json['statut'];
     createdAt = json['createdAt'];
     updatedAt = json['updatedAt'];
+    dateFin = json['dateFin'];
     chantierId = json['ChantierId'];
     chefChantierId = json['chefChantierId'];
   }
@@ -43,7 +49,9 @@ class Tache {
     data['type'] = type;
     data['etat'] = etat;
     data['statut'] = statut;
+    data['imageURL'] = imageURL;
     data['createdAt'] = createdAt;
+    data['dateFin'] = dateFin;
     data['updatedAt'] = updatedAt;
     data['ChantierId'] = chantierId;
     data['chefChantierId'] = chefChantierId;

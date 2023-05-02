@@ -4,7 +4,8 @@ class ChefProjet {
   String? prenom;
   String? imageURL;
   String? numTel;
-  String? password;
+  String? passwordHash;
+  String? email;
   String? cin;
   String? createdAt;
   String? updatedAt;
@@ -15,7 +16,8 @@ class ChefProjet {
       this.prenom,
       this.imageURL,
       this.numTel,
-      this.password,
+      this.passwordHash,
+      this.email,
       this.cin,
       this.createdAt,
       this.updatedAt});
@@ -26,7 +28,8 @@ class ChefProjet {
     prenom = json['prenom'];
     imageURL = json['imageURL'];
     numTel = json['numTel'];
-    password = json['password'];
+    passwordHash = json['passwordHash'];
+    email = json['email'];
     cin = json['cin'];
     createdAt = json['createdAt'];
     updatedAt = json['updatedAt'];
@@ -39,10 +42,15 @@ class ChefProjet {
     data['prenom'] = prenom;
     data['imageURL'] = imageURL;
     data['numTel'] = numTel;
-    data['password'] = password;
+    data['passwordHash'] = passwordHash;
+    data['email'] = email;
     data['cin'] = cin;
     data['createdAt'] = createdAt;
     data['updatedAt'] = updatedAt;
     return data;
+  }
+
+  static ChefProjet chefFromJSON(chefJSON) {
+    return ChefProjet.fromJson(chefJSON);
   }
 }

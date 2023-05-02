@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:pfe_mobile_app/pages/chefProjet/tache/tache_detail/widgets/tache_description.dart';
 import 'package:pfe_mobile_app/pages/chefProjet/tache/tache_detail/widgets/tache_image.dart';
 import 'package:pfe_mobile_app/pages/chefProjet/tache/tache_detail/widgets/Tacheheader.dart';
@@ -14,18 +17,22 @@ class TacheDetail extends StatefulWidget {
 }
 
 class _TacheDetailState extends State<TacheDetail> {
-  Future<void> _updateTask(Tache tache, int idTask) async {
-    await ApiClient.modifierTache('/taches/$idTask', tache);
+  Future<void> _rectifierTask(File image, int idTask, String desc) async {
+    await ApiClient.rectifierTache(image, '/taches/$idTask/rectifier', desc);
+  }
+
+  Future<void> _validerTask(int idTask) async {
+    await ApiClient.modifierTache('/taches/$idTask/valider');
     setState(() {});
   }
 
   Future<void> _deleteTask(int idTask) async {
     await ApiClient.supprimmerTache('/taches/$idTask');
-    setState(() {});
   }
 
   final _descriptionController = TextEditingController();
   String _taskNotes = "";
+  File? _imageFile;
 
   @override
   void initState() {
@@ -41,13 +48,6 @@ class _TacheDetailState extends State<TacheDetail> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Détails de la tâche'),
-        actions: [
-          IconButton(
-            onPressed: () async {},
-            icon: const Icon(Icons.library_add_check),
-            color: Colors.green,
-          )
-        ],
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -60,7 +60,7 @@ class _TacheDetailState extends State<TacheDetail> {
             const SizedBox(
               height: 50.0,
             ),
-            TacheImage(),
+            TacheImage(imageURL: tache.imageURL ?? ""),
             const SizedBox(
               height: 30.0,
             ),
@@ -97,18 +97,16 @@ class _TacheDetailState extends State<TacheDetail> {
                             statut: true,
                             etat: widget.tache.etat);
                         try {
-                          await _updateTask(tache, widget.tache.id!);
+                          await _validerTask(widget.tache.id!);
                           ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(content: Text('Tâche Validée')));
                           Navigator.pop(context);
-                        }
-                        catch(error){
+                        } catch (error) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Opération Echouée')));
+                              const SnackBar(
+                                  content: Text('Opération Echouée')));
                         }
                         setState(() {});
-
-
                       },
                       child: Container(
                         padding: const EdgeInsets.symmetric(
@@ -130,18 +128,44 @@ class _TacheDetailState extends State<TacheDetail> {
                       ),
                     ),
                   ),
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () {
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              title: const Text('Rectifier la tâche'),
-                              content: Form(
-                                child: Column(
+                  GestureDetector(
+                    onTap: () {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return StatefulBuilder(
+                            builder:
+                                (BuildContext context, StateSetter setState) {
+                              return AlertDialog(
+                                title: const Text('Rectifier la tâche'),
+                                content: Column(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
+                                    GestureDetector(
+                                      onTap: () async {
+                                        final pickedFile = await ImagePicker()
+                                            .pickImage(
+                                                source: ImageSource.camera);
+                                        if (pickedFile != null) {
+                                          setState(() {
+                                            _imageFile = File(pickedFile.path);
+                                          });
+                                        }
+                                      },
+                                      child: Container(
+                                        height: 200,
+                                        decoration: BoxDecoration(
+                                          border:
+                                              Border.all(color: Colors.grey),
+                                        ),
+                                        child: _imageFile == null
+                                            ? const Center(
+                                                child: Icon(Icons.camera_alt,
+                                                    size: 50),
+                                              )
+                                            : Image.file(_imageFile!),
+                                      ),
+                                    ),
                                     TextFormField(
                                       controller: _descriptionController,
                                       decoration: const InputDecoration(
@@ -150,7 +174,7 @@ class _TacheDetailState extends State<TacheDetail> {
                                       ),
                                       validator: (value) {
                                         if (value == null || value.isEmpty) {
-                                          return 'Veuillez entrer un titre';
+                                          return 'Veuillez entrer une description';
                                         }
                                         return null;
                                       },
@@ -161,58 +185,71 @@ class _TacheDetailState extends State<TacheDetail> {
                                         });
                                       },
                                     ),
-                                    ElevatedButton(
-                                      child: const Text('Soumettre'),
-                                      onPressed: () {
-                                        String desc = _descriptionController
-                                            .text
-                                            .toString();
-                                        if (_descriptionController.text
-                                            .toString()
-                                            .isEmpty) {
-                                          desc = widget.tache.description ?? "";
-                                        }
-                                        Tache tache = Tache(
-                                            titre: widget.tache.titre,
-                                            description: desc,
-                                            type: "rectification",
-                                            statut: false,
-                                            etat: false);
-                                        _updateTask(tache, widget.tache.id!);
-                                        setState(() {});
-                                        Navigator.pop(context);
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(const SnackBar(
-                                                content: Text(
-                                                    'Tâche rectifiée avec succès')));
-                                      },
-                                    ),
                                   ],
                                 ),
-                              ),
-                            );
-                          },
-                        );
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16.0,
-                          vertical: 8.0,
-                        ),
+                                actions: <Widget>[
+                                  ElevatedButton(
+                                    child: const Text('Annuler'),
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                  ),
+                                  ElevatedButton(
+                                    child: const Text('Soumettre'),
+                                    onPressed: () async {
+                                      if (_imageFile != null) {
+                                        try {
+                                          _rectifierTask(_imageFile!, tache.id!,
+                                              _descriptionController.text);
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(const SnackBar(
+                                            content: Text(
+                                                'Photo envoyée avec succès'),
+                                          ));
+                                        } catch (e) {
+                                          print(e);
+                                        }
+                                      } else {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(const SnackBar(
+                                          content: Text(
+                                              'Veuillez prendre une photo'),
+                                        ));
+                                      }
+                                      Navigator.pop(context);
+                                    },
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        },
+                      );
+                    },
+                    child: Container(
                         decoration: BoxDecoration(
-                          color: Colors.indigo,
-                          borderRadius: BorderRadius.circular(10.0),
+                          border: Border.all(color: Colors.grey),
                         ),
-                        child: const Center(
-                          child: Text(
-                            "Réctifier",
-                            style: TextStyle(
-                              color: Colors.white,
+                        child: Center(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16.0,
+                              vertical: 8.0,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.indigo,
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            child: const Center(
+                              child: Text(
+                                "Rectifier",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                ),
+                              ),
                             ),
                           ),
-                        ),
-                      ),
-                    ),
+                        )),
                   ),
                   Expanded(
                     child: GestureDetector(

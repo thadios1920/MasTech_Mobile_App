@@ -46,7 +46,7 @@ class _ListChantierState extends State<ListChantier> {
           child: Container(
             alignment: Alignment.center,
             margin:
-            const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+                const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
             height: 80.0,
             width: double.infinity,
             decoration: BoxDecoration(
@@ -65,8 +65,8 @@ class _ListChantierState extends State<ListChantier> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
-                  Text("Chantier :"+
-                      chantier.nom!,
+                  Text(
+                    "Chantier :" + chantier.nom!,
                     style: const TextStyle(
                       fontSize: 20.0,
                       fontWeight: FontWeight.bold,
@@ -88,7 +88,6 @@ class _ListChantierState extends State<ListChantier> {
     return Column(
       children: expenseList,
     );
-
   }
 
   @override
@@ -102,7 +101,6 @@ class _ListChantierState extends State<ListChantier> {
 
     List<Widget> expenseList = [];
     return Scaffold(
-
       body: SingleChildScrollView(
         child: Column(
           children: <Widget>[
@@ -124,9 +122,12 @@ class _ListChantierState extends State<ListChantier> {
               ),
               child: CustomPaint(
                 foregroundPainter: RadialPainter(
+                  // bgColor: Colors.grey,
+                  // lineColor: getColor(context, 20),
+                  // percent: percent,
                   bgColor: Colors.grey,
-                  lineColor: getColor(context, 20),
-                  percent: percent,
+                  lineColors: [Colors.blue, Colors.red, Colors.green],
+                  values: [20, 50, 30],
                   width: 15.0,
                 ),
                 child: const Center(

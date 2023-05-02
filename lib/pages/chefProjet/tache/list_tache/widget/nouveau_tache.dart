@@ -54,6 +54,14 @@ class _NouveauTacheState extends State<NouveauTache> {
             itemBuilder: (BuildContext context, int index) {
               return TacheCard(
                 tache: taches[index],
+                onTacheDeleted: (tacheSupprimee) {
+                  // si la suppression a réussi, fermer la page actuelle
+
+                  setState(() {
+                    taches
+                        .removeWhere((tache) => tache.id == tacheSupprimee.id);
+                  });
+                },
               );
             },
             separatorBuilder: (BuildContext context, int index) {

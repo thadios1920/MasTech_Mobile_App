@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:image/image.dart' as imgs;
 import 'package:http/http.dart' as http;
 import 'package:pfe_mobile_app/services/api_Client.dart';
 import '../../models/element.dart' as element;
@@ -29,6 +29,7 @@ class _ImageZoningPageState extends State<ImageZoningPage> {
   Offset? _end;
   int _selectedZoneIndex = -1;
   final List<Rect> _rects = [];
+  Image imageDims = Image.network("");
 
   @override
   void initState() {
@@ -67,11 +68,11 @@ class _ImageZoningPageState extends State<ImageZoningPage> {
     });
   }
 
-  // Future<void> _affecterElement(int idElem, bool aff) async {
-  //   await ApiClient.affecterElement('/elements/$idElem/zones', aff);
+  Future<void> _affecterElement(int idElem) async {
+    await ApiClient.affecterElement('/elements/$idElem/affecte');
 
-  //   setState(() {});
-  // }
+    setState(() {});
+  }
 
   Future<void> getElements() async {
     listElems =
@@ -82,7 +83,6 @@ class _ImageZoningPageState extends State<ImageZoningPage> {
       for (var elem in listElems) {
         if (elem.affecte == false) {
           notZonedElems.add(elem);
-          print('notZoned${notZonedElems.length}');
         }
       }
       setState(() {});
@@ -144,6 +144,13 @@ class _ImageZoningPageState extends State<ImageZoningPage> {
           ],
         ),
         actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text(
+              'Supprimer',
+              style: TextStyle(color: Colors.red),
+            ),
+          ),
           TextButton(
             onPressed: () {
               showDialog(
@@ -223,13 +230,19 @@ class _ImageZoningPageState extends State<ImageZoningPage> {
           try {
             setState(() {
               _image = File.fromRawPath(response.bodyBytes);
-              // _zones.clear();
+              // imageDims = Image.file(_image!);
+              // final img1 = imgs.decodeImage(_image!.readAsBytesSync());
+              // print("${img1!.height}");
               _zones.addAll(lesZones.map((zone) => Rect.fromLTWH(
                   zone.x!.toDouble(),
                   zone.y!.toDouble(),
                   zone.width!.toDouble(),
                   zone.height!.toDouble())));
             });
+
+            // final imageBytes = await _image!.readAsBytes();
+            // final decodedImage = imgs.decodeImage(imageBytes);
+            // print("${decodedImage!.height}");
           } catch (e) {
             print('Error creating File object: $e'); // Debugging statement
           }
@@ -364,12 +377,13 @@ class _ImageZoningPageState extends State<ImageZoningPage> {
                                                 builder:
                                                     (BuildContext context) {
                                                   return AlertDialog(
-                                                    title: Text('Zone $index'),
+                                                    title: const Text(
+                                                        'Definire l\'élement'),
                                                     content: Form(
                                                       child: notZonedElems
                                                               .isEmpty
                                                           ? const Text(
-                                                              "Pas d'elements")
+                                                              "Touts les élements sont affectées")
                                                           : Column(
                                                               mainAxisSize:
                                                                   MainAxisSize
@@ -422,14 +436,18 @@ class _ImageZoningPageState extends State<ImageZoningPage> {
                                                                         height: _rects[index]
                                                                             .height
                                                                             .toInt());
-
-                                                                    await _createZone(
-                                                                        z,
-                                                                        _selectedelem);
-                                                                    // await _affecterElement(
-                                                                    //     int.parse(
-                                                                    //         _selectedelem),
-                                                                    //     true);
+                                                                    try {
+                                                                      await _createZone(
+                                                                          z,
+                                                                          _selectedelem);
+                                                                      await _affecterElement(
+                                                                          int.parse(
+                                                                              _selectedelem));
+                                                                      Navigator.pop(
+                                                                          context);
+                                                                    } catch (e) {
+                                                                      print(e);
+                                                                    }
                                                                   }, //capturer dimentions zone et affecter la a l'element
                                                                   child: const Text(
                                                                       'Soumettre'),

@@ -4,7 +4,8 @@ import 'common_Widgets/custom_elevated_button.dart';
 
 class SignInButton extends CustomElevatedButton {
   SignInButton(
-      {required String text,
+      {super.key,
+      required String text,
       required Color? color,
       required Color textColor,
       double height = 50,
@@ -15,5 +16,5 @@ class SignInButton extends CustomElevatedButton {
             color: color,
             onPressed: onPressed,
             height: height,
-            borderRadius: 4.0);
+            borderRadius: 10.0);
 }

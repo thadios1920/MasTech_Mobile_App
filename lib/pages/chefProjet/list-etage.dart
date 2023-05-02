@@ -1,12 +1,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:pfe_mobile_app/image.dart';
+import 'package:pfe_mobile_app/custom_Widgets/sign_in-button.dart';
 import 'package:pfe_mobile_app/models/chantier.dart';
 import 'package:pfe_mobile_app/pages/chefProjet/tache/list_tache/list_tache.dart';
-import 'package:pfe_mobile_app/pages/chefProjet/taskListPage.dart';
+import 'package:pfe_mobile_app/services/helpers/pdfController.dart';
 import '../../custom_Widgets/radial_painter.dart';
 import '../../helpers/color_helper.dart';
-import '../../models/element.dart' as element;
 
 import '../../custom_Widgets/posts_carousel.dart';
 import '../../models/etage.dart';
@@ -24,8 +23,10 @@ class _ListEtageState extends State<ListEtage>
     with SingleTickerProviderStateMixin {
   int _currentIndex = 0;
   late TabController _tabController;
+  late double percentAV = widget.chantier.percentAvancement!.toDouble();
   late PageController _pageController;
-
+  late bool isProjectClosed = widget
+      .chantier.etat!; // variable indiquant si le projet est clôturé ou non
   List<Etage> etagesList = [];
   List planList = [];
 
@@ -115,8 +116,19 @@ class _ListEtageState extends State<ListEtage>
                     child: CustomPaint(
                       foregroundPainter: RadialPainter(
                         bgColor: Colors.grey,
-                        lineColor: getColor(context, percent),
-                        percent: percent,
+                        // lineColor: getColor(context, percentAV),
+                        // percent: percentAV / 100,
+
+                        lineColors: const [
+                          Colors.blue,
+                          Colors.red,
+                          Colors.green
+                        ],
+                        values: [
+                          widget.chantier.percentEstimation!.toDouble(),
+                          widget.chantier.percentElaboration!.toDouble(),
+                          widget.chantier.percentFabrication!.toDouble()
+                        ],
                         width: 15.0,
                       ),
                       child: Center(
@@ -140,6 +152,32 @@ class _ListEtageState extends State<ListEtage>
               title: 'Etages',
               etages: etagesList,
               plans: planList,
+            ),
+            Center(
+              child: isProjectClosed
+                  ? SignInButton(
+                      color: Colors.blueGrey,
+                      textColor: Colors.white,
+                      onPressed: () {
+                        PdfController.openFile(
+                            url:
+                                'http://192.168.1.12:8080/api/v1/chefProjets/generate-rapport',
+                            fileName: 'rapport${widget.chantier.nom}');
+                      },
+                      text: 'Generer Rapport')
+                  : Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: SignInButton(
+                          color: Colors.green,
+                          textColor: Colors.white,
+                          onPressed: () {
+                            // Ici, vous pouvez mettre votre code pour clôturer le chantier
+                            setState(() {
+                              isProjectClosed = true;
+                            });
+                          },
+                          text: 'Clôturer le chantier'),
+                    ),
             ),
           ],
         ),

@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 
 class TacheImage extends StatefulWidget {
+  final String? imageURL;
+
+  TacheImage({Key? key, required this.imageURL}) : super(key: key);
+
   @override
   _TacheImageState createState() => _TacheImageState();
 }
@@ -15,20 +19,21 @@ class _TacheImageState extends State<TacheImage> {
           child: Container(
             margin: const EdgeInsets.symmetric(vertical: 20.0),
             height: 200.0,
-            child: FadeInImage(
-              placeholder: AssetImage('assets/images/user6.jpg'),
-              image: NetworkImage(
-                  'https://images.freeimages.com/images/previews/ac9/railway-hdr-1361893.jpg'),
-              fit: BoxFit.cover,
-              imageErrorBuilder:
-                  (BuildContext context, Object exception, stackTrace) {
-                // En cas d'erreur lors de la récupération de l'image depuis l'URL, afficher l'image de l'asset
-                return Image.asset('assets/images/user6.jpg',
-                    fit: BoxFit.cover);
-              },
-            ),
+            child: widget.imageURL != null && widget.imageURL!.isNotEmpty
+                ? Image.network(
+                    widget.imageURL!,
+                    height: 400.0,
+                    width: 300.0,
+                    fit: BoxFit.cover,
+                  )
+                : Image.asset(
+                    'assets/images/placeHolder1.png', //chemin vers l'image de remplacement
+                    height: 400.0,
+                    width: 300.0,
+                    fit: BoxFit.cover,
+                  ),
           ),
-        )
+        ),
       ],
     );
   }
