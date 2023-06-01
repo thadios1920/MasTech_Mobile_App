@@ -3,9 +3,12 @@ import 'package:get/get.dart';
 
 import '../models/etage.dart';
 import '../modules/etage/etage_controller.dart';
+import '../modules/planEditing/planEditing_bindings.dart';
+import '../modules/planEditing/planEditing_screen.dart';
 
 class PostsCarousel extends StatelessWidget {
-  final EtageController etageController = Get.put(EtageController());
+  final EtageController etageController =
+      Get.put(EtageController(), tag: "etage");
   final PageController pageController;
   final String title;
   final List<Etage> etages;
@@ -69,13 +72,9 @@ class PostsCarousel extends StatelessWidget {
             right: 10.0,
             child: GestureDetector(
               onTap: () {
-                // Navigator.push(
-                //   context,
-                //   MaterialPageRoute(
-                //     builder: (_) => ImageZoningPage(
-                //         plan: imageUrl['imageUrl'], etage: etage),
-                //   ),
-                // );
+                Get.to(const ImageZoningPage(),
+                    arguments: {'plan': imageUrl['imageUrl'], 'etage': etage},
+                    binding: PlanEditingBindings());
               },
               child: Container(
                 padding: const EdgeInsets.all(12.0),
@@ -133,20 +132,22 @@ class PostsCarousel extends StatelessWidget {
             ),
           ),
         ),
-        SizedBox(
-          height: 400.0,
-          child: false
-              ? const Center(
-                  child: CircularProgressIndicator(
-                  color: Colors.blue,
-                ))
-              : PageView.builder(
-                  controller: pageController,
-                  itemCount: plans.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return _buildPost(context, index);
-                  },
-                ),
+        Obx(
+          () => SizedBox(
+            height: 400.0,
+            child: etageController.isLoading.value
+                ? const Center(
+                    child: CircularProgressIndicator(
+                    color: Colors.blue,
+                  ))
+                : PageView.builder(
+                    controller: pageController,
+                    itemCount: plans.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return _buildPost(context, index);
+                    },
+                  ),
+          ),
         ),
       ],
     );

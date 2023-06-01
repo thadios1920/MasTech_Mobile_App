@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:get/get.dart';
 
 import '../../helpers/shared_service.dart';
@@ -10,14 +12,15 @@ class HomeController extends GetxController {
     getRole();
   }
 
-  var isChefProjet = true.obs;
+  var isChefProjet = false.obs;
+  var image = File('').obs;
 
   getRole() async {
-    print("chefProjetBeforeCondition$isChefProjet");
+    print('not chefProjet');
     LoginDetails details = await SharedService().getLoginDetails();
     if (details.user!.role!.compareTo("chefProjet") == 0) {
-      isChefProjet(true);
-      print("chefProjetAfterCondition$isChefProjet");
+      isChefProjet.value = true;
+      print('isChefProjet');
     }
   }
 }

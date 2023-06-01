@@ -1,8 +1,12 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:mastech/models/utilisateur.dart';
 
 import '../../helpers/shared_service.dart';
 import '../../models/login_details.dart';
+import 'home_controller.dart';
 
 class HomeHeader extends StatefulWidget {
   const HomeHeader({super.key});
@@ -12,6 +16,7 @@ class HomeHeader extends StatefulWidget {
 }
 
 class _HomeHeaderState extends State<HomeHeader> {
+  final HomeController homeController = Get.put(HomeController());
   Utilisateur user = Utilisateur();
 
   @override
@@ -42,7 +47,10 @@ class _HomeHeaderState extends State<HomeHeader> {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               image: DecorationImage(
-                image: NetworkImage(user.imageURL ?? ""),
+                image: homeController.image.value.path.isNotEmpty
+                    ? FileImage(File(homeController.image.value.path))
+                    : NetworkImage(user.imageURL ?? "")
+                        as ImageProvider<Object>,
               ),
             ),
           ),

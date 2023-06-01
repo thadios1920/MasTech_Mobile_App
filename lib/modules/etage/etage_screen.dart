@@ -2,17 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mastech/modules/etage/etage_controller.dart';
 
-import '../../custom_Widgets/radial_painter.dart';
-
 import '../../custom_widgets/posts_carousel.dart';
+import '../../custom_widgets/radial_painter.dart';
 import '../../helpers/pdf_service.dart';
-import '../../models/chantier.dart';
-import '../../models/etage.dart';
 import 'package:outline_gradient_button/outline_gradient_button.dart';
 
+import '../taches/affected/affectedTask_screen/list_tache/list_tache.dart';
+
 class ListEtage extends StatefulWidget {
-  final Chantier chantier;
-  const ListEtage({required this.chantier});
+  const ListEtage();
 
   @override
   State<ListEtage> createState() => _ListEtageState();
@@ -21,16 +19,13 @@ class ListEtage extends StatefulWidget {
 class _ListEtageState extends State<ListEtage>
     with SingleTickerProviderStateMixin {
   final EtageController etageController = Get.put(EtageController());
+  // final chantier = Get.arguments;
 
   int _currentIndex = 0;
   late TabController _tabController;
-  late double percentAV = widget.chantier.percentAvancement!.toDouble();
   late PageController _pageController;
-  late bool isProjectClosed = widget
-      .chantier.etat!; // variable indiquant si le projet est clôturé ou non
-  List<Etage> etagesList = [];
-  List planList = [];
-  String id = "";
+  late bool isProjectClosed = etageController.chantier.value
+      .etat!; // en peut auusi utiliser chantier de Get.argument variable indiquant si le projet est clôturé ou non
 
   setCurrentIndex(int index) {
     setState(() {
@@ -41,20 +36,18 @@ class _ListEtageState extends State<ListEtage>
   @override
   void initState() {
     super.initState();
-
     _tabController = TabController(length: 2, vsync: this);
     _pageController = PageController(initialPage: 0, viewportFraction: 0.8);
   }
 
   _buildListEtage() {
-    final double percent = 0.25;
     return Scaffold(
       appBar: AppBar(
         iconTheme: const IconThemeData(
           color: Colors.white,
         ),
         title: Text(
-          widget.chantier.nom ?? "",
+          etageController.chantier.value.nom ?? "",
           style: const TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
@@ -99,25 +92,29 @@ class _ListEtageState extends State<ListEtage>
                           Colors.green
                         ],
                         values: [
-                          widget.chantier.percentEstimation!.toDouble(),
-                          widget.chantier.percentElaboration!.toDouble(),
-                          widget.chantier.percentFabrication!.toDouble()
+                          etageController.chantier.value.percentEstimation!
+                              .toDouble(),
+                          etageController.chantier.value.percentElaboration!
+                              .toDouble(),
+                          etageController.chantier.value.percentFabrication!
+                              .toDouble()
                         ],
                         width: 15.0,
                       ),
                       child: Center(
-                        child: Text(
-                          "${widget.chantier.percentAvancement}%",
-                          // '\$${amountLeft.toStringAsFixed(2)} / \$${widget.category.maxAmount}',
-                          style: const TextStyle(
-                            fontSize: 20.0,
-                            fontWeight: FontWeight.w600,
+                        child: Obx(
+                          () => Text(
+                            "${etageController.chantier.value.percentAvancement}%",
+                            // '\$${amountLeft.toStringAsFixed(2)} / \$${widget.category.maxAmount}',
+                            style: const TextStyle(
+                              fontSize: 20.0,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
                       ),
                     ),
                   ),
-                  // ListEtage(chantier: widget.chantier)
                 ],
               ),
             ),
@@ -144,7 +141,8 @@ class _ListEtageState extends State<ListEtage>
                       onTap: () => PdfService.openFile(
                           url:
                               'http://192.168.1.12:8080/api/v1/chefProjets/generate-rapport',
-                          fileName: 'rapport${widget.chantier.nom}'),
+                          fileName:
+                              'rapport-${etageController.chantier.value.nom}'),
                       child: const Text('Générer Rapport',
                           style: TextStyle(color: Colors.white, fontSize: 12)))
                   : Padding(
@@ -165,9 +163,9 @@ class _ListEtageState extends State<ListEtage>
             ),
           ],
         ),
-        // ListTache(
-        //   idChantier: widget.chantier.id.toString(),
-        // )
+        ListTache(
+          idChantier: etageController.chantier.value.id.toString(),
+        )
       ][_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
           currentIndex: _currentIndex,

@@ -49,4 +49,10 @@ class Utilisateur {
   static Utilisateur chefFromJSON(chefJSON) {
     return Utilisateur.fromJson(chefJSON);
   }
+
+  static List<Utilisateur> chefChnatierFromJSON(List chefChnatierJSON) {
+    return chefChnatierJSON.map((data) {
+      return Utilisateur.fromJson(data);
+    }).toList();
+  }
 }

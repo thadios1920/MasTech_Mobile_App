@@ -161,7 +161,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         if (res)
                           {
                             // ici il faut verifier si chefProjet ou chefChantier
-                            Get.toNamed('/home')
+                            Navigator.pushReplacementNamed(context, '/home')
                           }
                         else
                           {

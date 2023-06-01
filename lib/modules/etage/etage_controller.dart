@@ -1,34 +1,33 @@
 import 'package:get/get.dart';
+import 'package:mastech/models/chantier.dart';
 import 'package:mastech/models/plan.dart';
-import 'package:mastech/models/utilisateur.dart';
 
-import '../../helpers/shared_service.dart';
 import '../../models/etage.dart';
 import 'etage_service.dart';
 
 class EtageController extends GetxController {
-  final String id = "2";
   @override
   void onInit() {
     super.onInit();
+    chantier.value = Get.arguments;
     fetchEtages();
+    print(chantier.value.id);
   }
 
+  var chantier = Chantier().obs;
   var isLoading = true.obs;
   var etagesList = <Etage>[].obs;
   var planList = [].obs;
-  // var id = "".obs;
 
   fetchEtages() async {
     try {
       isLoading(true);
-
-      var etages = await EtageService.getEtages('/chantiers/$id/etages');
+      var etages = await EtageService.getEtages(
+          '/chantiers/${chantier.value.id}/etages');
       if (etages.isNotEmpty) {
         for (var e in etages) {
           etagesList.add(e);
         }
-        print(etagesList.length);
         await getPlan();
       }
     } finally {
@@ -42,9 +41,7 @@ class EtageController extends GetxController {
         var plan =
             await EtageService.getPlan("/etages/${etagesList[i].id}/plan");
         planList.add(plan);
-        print(plan);
       }
-      print(planList.length);
     } catch (e) {
       print(e);
     }

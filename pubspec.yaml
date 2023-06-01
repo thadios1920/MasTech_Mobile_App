@@ -45,6 +45,13 @@ dependencies:
   open_file: ^3.2.1
   path_provider: ^2.0.14
   outline_gradient_button: ^2.0.1+1
+  intl: ^0.17.0
+  date_field: ^3.0.2
+  flutter_slidable: ^0.6.0
+  adaptive_dialog: ^1.8.3+1
+  filter_list: ^1.0.2
+  calendar_date_picker2: ^0.5.2
+
 
 dev_dependencies:
   flutter_test:

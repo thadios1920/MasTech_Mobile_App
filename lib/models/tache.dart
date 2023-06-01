@@ -5,10 +5,12 @@ class Tache {
   String? type;
   bool? etat;
   bool? statut;
+  String? createdAt;
+  String? updatedAt;
   String? dateFin;
   String? imageURL;
-  int? chantierId;
-  int? chefChantierId;
+  dynamic chantierId;
+  dynamic chefChantierId;
 
   Tache(
       {this.id,
@@ -19,6 +21,8 @@ class Tache {
       this.imageURL,
       this.dateFin,
       this.statut,
+      this.createdAt,
+      this.updatedAt,
       this.chantierId,
       this.chefChantierId});
 
@@ -30,6 +34,8 @@ class Tache {
     imageURL = json['imageURL'];
     etat = json['etat'];
     statut = json['statut'];
+    createdAt = json['createdAt'];
+    updatedAt = json['updatedAt'];
     dateFin = json['dateFin'];
     chantierId = json['ChantierId'];
     chefChantierId = json['chefChantierId'];
@@ -44,7 +50,9 @@ class Tache {
     data['etat'] = etat;
     data['statut'] = statut;
     data['imageURL'] = imageURL;
+    data['createdAt'] = createdAt;
     data['dateFin'] = dateFin;
+    data['updatedAt'] = updatedAt;
     data['ChantierId'] = chantierId;
     data['chefChantierId'] = chefChantierId;
     return data;

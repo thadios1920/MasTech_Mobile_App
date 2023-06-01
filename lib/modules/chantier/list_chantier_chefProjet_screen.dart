@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mastech/modules/etage/etage_bindings.dart';
 
 import '../../custom_widgets/bar_chart.dart';
 import '../../models/chantier.dart';
@@ -19,12 +20,8 @@ class _ListChantierChefProjetState extends State<ListChantierChefProjet> {
   _buildChantier(Chantier chantier) {
     return GestureDetector(
       onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => ListEtage(chantier: chantier),
-          ),
-        );
+        Get.to(const ListEtage(),
+            arguments: chantier, binding: EtageBindings());
       },
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
@@ -119,39 +116,49 @@ class _ListChantierChefProjetState extends State<ListChantierChefProjet> {
           child: CircularProgressIndicator(),
         );
       } else {
-        return CustomScrollView(
-          slivers: <Widget>[
-            SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (BuildContext context, int index) {
-                  if (index == 0) {
-                    return Container(
-                      margin: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 10.0),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Colors.black12,
-                            offset: Offset(0, 2),
-                            blurRadius: 6.0,
-                          ),
-                        ],
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                      child: BarChart(chantierController.chantiersList),
-                    );
-                  } else {
-                    final Chantier chantier =
-                        chantierController.chantiersList[index - 1];
-
-                    return _buildChantier(chantier);
-                  }
-                },
-                childCount: 1 + chantierController.chantiersList.length,
-              ),
+        if (chantierController.chantiersList.isEmpty) {
+          return const Center(
+            child: Text(
+              'Aucun chantier disponible',
+              style: TextStyle(fontSize: 18.0),
             ),
-          ],
-        );
+          );
+        } else {
+          return CustomScrollView(
+            slivers: <Widget>[
+              SliverList(
+                delegate: SliverChildBuilderDelegate(
+                  (BuildContext context, int index) {
+                    if (index == 0) {
+                      return Container(
+                        margin:
+                            const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 10.0),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Colors.black12,
+                              offset: Offset(0, 2),
+                              blurRadius: 6.0,
+                            ),
+                          ],
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                        child: BarChart(chantierController.chantiersList),
+                      );
+                    } else {
+                      final Chantier chantier =
+                          chantierController.chantiersList[index - 1];
+
+                      return _buildChantier(chantier);
+                    }
+                  },
+                  childCount: 1 + chantierController.chantiersList.length,
+                ),
+              ),
+            ],
+          );
+        }
       }
     });
   }

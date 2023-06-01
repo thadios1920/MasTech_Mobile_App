@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../custom_widgets/bar_chart.dart';
 import '../../custom_widgets/radial_painter.dart';
+import '../taches/ToDo/ToDoTask_screen/list_tache/list_tache.dart';
+import '../taches/affectedTask_bindings.dart';
 import 'chantier_chefProjet_controller.dart';
 
 class ListChantierChefChantier extends StatefulWidget {
@@ -24,6 +27,8 @@ class _ListChantierChefChantierState extends State<ListChantierChefChantier> {
             //   MaterialPageRoute(
             //       builder: (context) => ListTache(chantier: chantier)),
             // );
+            Get.to(const ListTache(),
+                arguments: chantier, binding: AffectedTaskBindings());
           },
           child: Container(
             alignment: Alignment.center,
@@ -74,60 +79,53 @@ class _ListChantierChefChantierState extends State<ListChantierChefChantier> {
 
   @override
   Widget build(BuildContext context) {
-    // double totalAmountSpent = 0;
-    // chantiersList.forEach((Chantier chantier) {
-    //   totalAmountSpent += 1;
-    // });
-    // final double amountLeft = widget.category.maxAmount - totalAmountSpent;
-    final double percent = 20;
-
-    List<Widget> chantierList = [];
-    return Scaffold(
-      body: SingleChildScrollView(
-        child: Column(
-          children: <Widget>[
-            Container(
-              margin: const EdgeInsets.all(20.0),
-              padding: const EdgeInsets.all(20.0),
-              height: 250.0,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(10.0),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Colors.black12,
-                    offset: Offset(0, 2),
-                    blurRadius: 6.0,
-                  ),
-                ],
-              ),
-              child: CustomPaint(
-                foregroundPainter: RadialPainter(
-                  // bgColor: Colors.grey,
-                  // lineColor: getColor(context, 20),
-                  // percent: percent,
-                  bgColor: Colors.grey,
-                  lineColors: [Colors.blue],
-                  values: [30],
-                  width: 15.0,
-                ),
-                child: const Center(
-                  child: Text(
-                    "10%",
-                    // '\$${amountLeft.toStringAsFixed(2)} / \$${widget.category.maxAmount}',
-                    style: TextStyle(
-                      fontSize: 20.0,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ),
+    return Obx(() {
+      if (chantierController.isLoading.value) {
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
+      } else {
+        if (chantierController.chantiersList.isEmpty) {
+          return const Center(
+            child: Text(
+              'Aucun chantier disponible',
+              style: TextStyle(fontSize: 18.0),
             ),
-            _buildChantiers(),
-          ],
-        ),
-      ),
-    );
+          );
+        } else {
+          return CustomScrollView(
+            slivers: <Widget>[
+              SliverList(
+                delegate: SliverChildBuilderDelegate(
+                  (BuildContext context, int index) {
+                    if (index == 0) {
+                      return Container(
+                        margin:
+                            const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 10.0),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Colors.black12,
+                              offset: Offset(0, 2),
+                              blurRadius: 6.0,
+                            ),
+                          ],
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                        child: BarChart(chantierController.chantiersList),
+                      );
+                    } else {
+                      return _buildChantiers();
+                    }
+                  },
+                  childCount: 1 + chantierController.chantiersList.length,
+                ),
+              ),
+            ],
+          );
+        }
+      }
+    });
   }
 }

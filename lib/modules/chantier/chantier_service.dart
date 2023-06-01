@@ -32,6 +32,7 @@ class ChantierService {
         throw Exception('Failed to load chantiers');
       }
     } catch (e) {
+      print(e);
       throw Exception('Failed to load chantiers');
     }
   }

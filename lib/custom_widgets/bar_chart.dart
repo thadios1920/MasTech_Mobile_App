@@ -89,6 +89,12 @@ class _BarChartState extends State<BarChart> {
                     .chantierList[_currentChantierIndex!].percentFabrication!
                     .toDouble(),
               ),
+              Bar(
+                label: 'Av',
+                statValeur: widget
+                    .chantierList[_currentChantierIndex!].percentAvancement!
+                    .toDouble(),
+              )
             ],
           ),
         ],

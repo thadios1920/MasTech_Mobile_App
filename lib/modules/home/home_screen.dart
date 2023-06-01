@@ -5,6 +5,7 @@ import 'package:mastech/modules/chantier/list_chantier_chefChantier_screen.dart'
 import 'package:mastech/modules/sign_in/sign_in_controller.dart';
 
 import '../../config/config.dart';
+import '../Settings/settings_screen.dart';
 import '../chantier/list_chantier_chefProjet_screen.dart';
 import 'home_controller.dart';
 import 'home_header.dart';
@@ -22,50 +23,43 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    var container;
-    if (currentPage == DrawerSections.dashboard) {
-      print("isChefProjet.value${homeController.isChefProjet.value}");
-      container = homeController.isChefProjet.value
-          ? const ListChantierChefProjet()
-          : const ListChantierChefChantier(); // verifier si le user est un chefChantier ou pas
-    } else if (currentPage == DrawerSections.logout) {
-      SignInController.logout(context);
-    }
-    // else if (currentPage == DrawerSections.contacts) {
-    //   container = CreateTask();
-    // }
-    // else if (currentPage == DrawerSections.events) {
-    //   container = EventsPage();
-    // }
-    //else if (currentPage == DrawerSections.notes) {
-    //   container = NotesPage();
-    //}
-    // else if (currentPage == DrawerSections.settings) {
-    //   container = ProfileEditPage();
-    // }
-    // else if (currentPage == DrawerSections.notifications) {
-    //   container = NotificationsPage();
-    // } else if (currentPage == DrawerSections.privacy_policy) {
-    //   container = PrivacyPolicyPage();
-    // } else if (currentPage == DrawerSections.send_feedback) {
-    //   container = SendFeedbackPage();
-    // }
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.indigo[800],
-        title: const Text(Config.appName),
-      ),
-      body: container,
-      drawer: Drawer(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              const HomeHeader(),
-              DrawerList(),
-            ],
+      body: Obx(() {
+        var container;
+        if (currentPage == DrawerSections.dashboard) {
+          print('chefProjet ${homeController.isChefProjet.value}');
+          container = homeController.isChefProjet.value
+              ? const ListChantierChefProjet()
+              : const ListChantierChefChantier();
+        } else if (currentPage == DrawerSections.logout) {
+          SignInController.logout(context);
+          // Retournez une Widget vide lorsque vous vous déconnectez
+          return Container();
+        } else if (currentPage == DrawerSections.settings) {
+          container = ProfileEditPage();
+        }
+        return WillPopScope(
+          // Utilisez WillPopScope pour gérer la navigation arrière
+          onWillPop: () async => false,
+          child: Scaffold(
+            appBar: AppBar(
+              backgroundColor: Colors.indigo[800],
+              title: const Text(Config.appName),
+            ),
+            body: container,
+            drawer: Drawer(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    const HomeHeader(),
+                    DrawerList(),
+                  ],
+                ),
+              ),
+            ),
           ),
-        ),
-      ),
+        );
+      }),
     );
   }
 
