@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:mastech/modules/planEditing/planEditing_controller.dart';
 import '../../models/element.dart' as element;
@@ -20,6 +21,7 @@ class _ImageZoningPageState extends State<ImageZoningPage> {
   List<String> phases = ["estimation", "elaboration", "fabrication"];
 
   var _selectedPhase;
+
   var _selectedelem;
   Offset? start;
   Offset? end;
@@ -35,9 +37,9 @@ class _ImageZoningPageState extends State<ImageZoningPage> {
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Text('Hauteur:${pec.listElems[index].hauteur}'),
-              Text('Largeur:${pec.listElems[index].largeur}'),
-              Text('Surface:${pec.listElems[index].surface}'),
+              Text('Hauteur: ${pec.listElems[index].hauteur} m '),
+              Text('Largeur: ${pec.listElems[index].largeur} m '),
+              Text('Surface:${pec.listElems[index].surface} m²'),
               Text('Gamme:${pec.listElems[index].gamme}'),
               Text(
                 'Phase:${pec.listElems[index].phase}',
@@ -70,60 +72,96 @@ class _ImageZoningPageState extends State<ImageZoningPage> {
                 context: context,
                 builder: (_) => AlertDialog(
                   title: Text('Modifier ${pec.listElems[index].reference}'),
-                  content: Form(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        TextFormField(
-                          controller: _largeurController,
-                          decoration: const InputDecoration(
-                            labelText: 'Largeur',
+                  content: Obx(
+                    () => Form(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          TextFormField(
+                            controller: _largeurController,
+                            // initialValue: pec.listElems[index].largeur,
+                            decoration: const InputDecoration(
+                              labelText: 'Largeur',
+                            ),
+                            keyboardType: TextInputType
+                                .number, // Utiliser le clavier numérique
+                            inputFormatters: <TextInputFormatter>[
+                              FilteringTextInputFormatter.allow(RegExp(
+                                  r'[0-9.]')), // Permettre uniquement les chiffres et le point décimal
+                            ],
+                            onChanged: (value) {
+                              pec.isButtonEnabled.value =
+                                  _largeurController.text.isNotEmpty ||
+                                      _hauteurController.text.isNotEmpty ||
+                                      _selectedPhase != null;
+                            },
                           ),
-                        ),
-                        TextFormField(
-                          controller: _hauteurController,
-                          decoration: const InputDecoration(
-                            labelText: 'Hauteur',
+                          TextFormField(
+                            controller: _hauteurController,
+                            //initialValue: pec.listElems[index].hauteur,
+                            decoration: const InputDecoration(
+                              labelText: 'Hauteur',
+                            ),
+                            keyboardType: TextInputType
+                                .number, // Utiliser le clavier numérique
+                            inputFormatters: <TextInputFormatter>[
+                              FilteringTextInputFormatter.allow(RegExp(
+                                  r'[0-9.]')), // Permettre uniquement les chiffres et le point décimal
+                            ],
+                            onChanged: (value) {
+                              pec.isButtonEnabled.value =
+                                  _largeurController.text.isNotEmpty ||
+                                      _hauteurController.text.isNotEmpty ||
+                                      _selectedPhase != null;
+                            },
                           ),
-                        ),
-                        DropdownButton<String>(
-                          hint: const Text("Phase"),
-                          value: _selectedPhase,
-                          onChanged: (newValue) {
-                            setState(() {
-                              _selectedPhase = newValue!;
-                            });
-                          },
-                          items: phases.map((String option) {
-                            return DropdownMenuItem<String>(
-                              value: option,
-                              child: Text(option),
-                            );
-                          }).toList(),
-                        ),
-                        ElevatedButton(
-                          onPressed: () async {
-                            try {
-                              element.Element data = element.Element(
-                                  reference: pec.listElems[index].reference,
-                                  id: pec.listElems[index].id,
-                                  phase: _selectedPhase,
-                                  surface: _surfaceController.text,
-                                  gamme: pec.listElems[index].gamme,
-                                  hauteur: _hauteurController.text,
-                                  largeur: _largeurController.text,
-                                  etageId: pec.listElems[index].etageId);
-                              await pec.updateElement(
-                                  data, pec.listElems[index].id!);
-                            } catch (e) {
-                              throw (e);
-                            }
+                          DropdownButton<String>(
+                            hint: const Text("Phase"),
+                            value: _selectedPhase,
+                            onChanged: (newValue) {
+                              setState(() {
+                                _selectedPhase = newValue!;
+                                pec.isButtonEnabled.value =
+                                    _largeurController.text.isNotEmpty ||
+                                        _hauteurController.text.isNotEmpty ||
+                                        _selectedPhase != null;
+                              });
+                            },
+                            items: phases.map((String option) {
+                              return DropdownMenuItem<String>(
+                                value: option,
+                                child: Text(option),
+                              );
+                            }).toList(),
+                          ),
+                          ElevatedButton(
+                            onPressed: pec.isButtonEnabled.value
+                                ? () async {
+                                    try {
+                                      element.Element data = element.Element(
+                                        reference:
+                                            pec.listElems[index].reference,
+                                        id: pec.listElems[index].id,
+                                        phase: _selectedPhase,
+                                        surface: _surfaceController.text,
+                                        gamme: pec.listElems[index].gamme,
+                                        hauteur: _hauteurController.text,
+                                        largeur: _largeurController.text,
+                                        etageId: pec.listElems[index].etageId,
+                                      );
+                                      await pec.updateElement(
+                                          data, pec.listElems[index].id!);
+                                    } catch (e) {
+                                      throw (e);
+                                    }
 
-                            Navigator.pop(context);
-                          },
-                          child: const Text('Soumettre'),
-                        ),
-                      ],
+                                    Navigator.pop(context);
+                                  }
+                                : null, // Désactiver le bouton si aucun champ n'est rempli
+                            child: const Text('Soumettre'),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),

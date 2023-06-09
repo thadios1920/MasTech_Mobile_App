@@ -27,7 +27,6 @@ class _HomeState extends State<Home> {
       body: Obx(() {
         var container;
         if (currentPage == DrawerSections.dashboard) {
-          print('chefProjet ${homeController.isChefProjet.value}');
           container = homeController.isChefProjet.value
               ? const ListChantierChefProjet()
               : const ListChantierChefChantier();

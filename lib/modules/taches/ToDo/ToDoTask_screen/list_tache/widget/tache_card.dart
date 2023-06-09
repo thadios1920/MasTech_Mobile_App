@@ -20,6 +20,16 @@ class _TacheCardState extends State<TacheCard> {
   Widget build(BuildContext context) {
     Tache tache = widget.tache;
     ThemeData themeData = Theme.of(context);
+    final titleLengthLimit = 10; // Limite de la longueur du titre
+
+    String getTitleText() {
+      if (tache.titre!.length <= titleLengthLimit) {
+        return tache.titre ?? "";
+      } else {
+        return '${tache.titre!.substring(0, titleLengthLimit)}...';
+      }
+    }
+
     return Slidable(
       actionPane: const SlidableDrawerActionPane(),
       actionExtentRatio: 0.25,
@@ -71,7 +81,7 @@ class _TacheCardState extends State<TacheCard> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "${tache.titre}",
+                    getTitleText(),
                     style: const TextStyle(
                         color: Colors.black,
                         fontWeight: FontWeight.w400,

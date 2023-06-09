@@ -14,6 +14,8 @@ class HomeController extends GetxController {
 
   var isChefProjet = false.obs;
   var image = File('').obs;
+  var nom = ''.obs;
+  var email = ''.obs;
 
   getRole() async {
     print('not chefProjet');

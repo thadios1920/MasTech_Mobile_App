@@ -20,7 +20,8 @@ class PlanEditingController extends GetxController {
 
   var plan = ''.obs;
   var etage = Etage().obs;
-
+  var isButtonEnabled = false.obs;
+  // var selectedPhase = ''.obs;
   var image = File('').obs;
   var zones = <Rect>[].obs;
   var lesZones = <Zone>[].obs;
@@ -40,7 +41,6 @@ class PlanEditingController extends GetxController {
   }
 
   Future<void> supprimerZone(Zone zone) async {
-    print(zone);
     await PlanEditingService.supprimmerZone('/zones/${zone.id}');
     zones.remove(Rect.fromLTWH(zone.x!.toDouble(), zone.y!.toDouble(),
         zone.width!.toDouble(), zone.height!.toDouble()));
@@ -52,8 +52,18 @@ class PlanEditingController extends GetxController {
     for (int i = 0; i < listElems.length; i++) {
       element.Element e = listElems[i];
       if (e.id == idElem) {
-        // Modification de l'élément dans la liste
-        listElems[i] = elem;
+        // Comparer les champs de l'élément du paramètre avec ceux de l'élément de la liste
+        if (e.largeur != elem.largeur) {
+          e.largeur = elem.largeur;
+        }
+        if (e.hauteur != elem.hauteur) {
+          e.hauteur = elem.hauteur;
+        }
+        if (e.phase != elem.phase) {
+          e.phase = elem.phase;
+        }
+        // Ajouter d'autres conditions pour les champs à conserver sans modification
+
         break; // Sortir de la boucle après avoir trouvé et modifié l'élément
       }
     }

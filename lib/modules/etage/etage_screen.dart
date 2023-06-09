@@ -5,7 +5,6 @@ import 'package:mastech/modules/etage/etage_controller.dart';
 import '../../custom_widgets/posts_carousel.dart';
 import '../../custom_widgets/radial_painter.dart';
 import '../../helpers/pdf_service.dart';
-import 'package:outline_gradient_button/outline_gradient_button.dart';
 
 import '../taches/affected/affectedTask_screen/list_tache/list_tache.dart';
 
@@ -46,16 +45,29 @@ class _ListEtageState extends State<ListEtage>
         iconTheme: const IconThemeData(
           color: Colors.white,
         ),
-        title: Text(
-          etageController.chantier.value.nom ?? "",
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 10.0,
-          ),
+        title: Row(
+          children: [
+            Expanded(
+              child: Text(
+                etageController.chantier.value.nom ?? "",
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 10.0,
+                ),
+              ),
+            ),
+            if (isProjectClosed)
+              IconButton(
+                icon: const Icon(Icons.book),
+                onPressed: () => PdfService.openFile(
+                  url:
+                      'http://192.168.1.12:8080/api/v1/chefProjets/generate-rapport',
+                  fileName: 'rapport-${etageController.chantier.value.nom}',
+                ),
+              ),
+          ],
         ),
-
-        // systemOverlayStyle: SystemUiOverlayStyle.dark,
       ),
       // drawer: CustomDrawer(),
       body: [
@@ -123,43 +135,6 @@ class _ListEtageState extends State<ListEtage>
               title: 'Etages',
               etages: etageController.etagesList,
               plans: etageController.planList,
-            ),
-            Center(
-              child: isProjectClosed
-                  ? OutlineGradientButton(
-                      gradient: const LinearGradient(
-                          colors: [Colors.greenAccent, Colors.yellow]),
-                      strokeWidth: 2,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 24, vertical: 12),
-                      corners: const Corners(
-                          topRight: Radius.circular(16),
-                          bottomRight: Radius.circular(16)),
-                      backgroundColor: Colors.lightBlue,
-                      elevation: 4,
-                      inkWell: true,
-                      onTap: () => PdfService.openFile(
-                          url:
-                              'http://192.168.1.12:8080/api/v1/chefProjets/generate-rapport',
-                          fileName:
-                              'rapport-${etageController.chantier.value.nom}'),
-                      child: const Text('Générer Rapport',
-                          style: TextStyle(color: Colors.white, fontSize: 12)))
-                  : Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: OutlineGradientButton(
-                        gradient: const LinearGradient(
-                            colors: [Colors.pink, Colors.purple]),
-                        strokeWidth: 4,
-                        radius: const Radius.circular(8),
-                        onTap: () {
-                          setState(() {
-                            isProjectClosed = true;
-                          });
-                        },
-                        child: const Text('Clôturer le chantier'),
-                      ),
-                    ),
             ),
           ],
         ),

@@ -14,15 +14,12 @@ class ProfileEditPage extends StatefulWidget {
 class _ProfileEditPageState extends State<ProfileEditPage> {
   final SettingsController setttingsController = Get.put(SettingsController());
   final HomeController homeController = Get.put(HomeController());
-  final _nomController = TextEditingController();
-  final _prenomController = TextEditingController();
-  final _emailController = TextEditingController();
-  final _newPasswordController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _numTelController = TextEditingController();
+
   final _formKey = GlobalKey<FormState>();
   final _picker = ImagePicker();
   File? _image;
+
+  bool _isChecked = false;
 
   Future _getImage() async {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
@@ -33,16 +30,26 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
 
   @override
   Widget build(BuildContext context) {
+    final _nomController =
+        TextEditingController(text: setttingsController.user.value.nom);
+    final _prenomController =
+        TextEditingController(text: setttingsController.user.value.prenom);
+    final _emailController =
+        TextEditingController(text: setttingsController.user.value.email);
+    final _newPasswordController = TextEditingController();
+    final _confirmPasswordController = TextEditingController();
+    final _numTelController =
+        TextEditingController(text: setttingsController.user.value.numTel);
     return Scaffold(
       body: SingleChildScrollView(
         child: Container(
-          padding: EdgeInsets.all(16),
+          padding: const EdgeInsets.all(16),
           child: Form(
             key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 GestureDetector(
                   onTap: _getImage,
                   child: Container(
@@ -71,11 +78,11 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                 TextFormField(
                   controller: _nomController,
                   decoration: const InputDecoration(
-                    labelText: 'Nom ',
+                    labelText: 'Nom',
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Veuillez entrer nom';
+                      return 'Veuillez entrer un nom';
                     }
                     return null;
                   },
@@ -84,11 +91,11 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                 TextFormField(
                   controller: _prenomController,
                   decoration: const InputDecoration(
-                    labelText: 'Prenom ',
+                    labelText: 'Prénom',
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Veuillez entrer Prenom';
+                      return 'Veuillez entrer un prénom';
                     }
                     return null;
                   },
@@ -131,39 +138,60 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                   },
                 ),
                 const SizedBox(height: 16),
-                TextFormField(
-                  controller: _passwordController,
-                  obscureText: true, // Set obscureText to true
-                  decoration: const InputDecoration(
-                    labelText: 'Ancien mot de passe',
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Veuillez entrer votre ancien mot de passe';
-                    }
-                    return null;
-                  },
+                Row(
+                  children: [
+                    Checkbox(
+                      value: _isChecked,
+                      onChanged: (value) {
+                        setState(() {
+                          _isChecked = value ?? false;
+                        });
+                      },
+                    ),
+                    const Text('Modifier le mot de passe'),
+                  ],
                 ),
                 const SizedBox(height: 16),
-                TextFormField(
-                  controller: _newPasswordController,
-                  obscureText: true, // Set obscureText to true
-                  decoration: const InputDecoration(
-                    labelText: 'Nouveau mot de passe',
+                if (_isChecked)
+                  Column(
+                    children: [
+                      TextFormField(
+                        controller: _newPasswordController,
+                        obscureText: true, // Set obscureText to true
+                        decoration: const InputDecoration(
+                          labelText: 'Nouveau mot de passe',
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Veuillez entrer un nouveau mot de passe';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _confirmPasswordController,
+                        obscureText: true, // Set obscureText to true
+                        decoration: const InputDecoration(
+                          labelText: 'Confirmer le mot de passe',
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Veuillez confirmer votre mot de passe';
+                          }
+                          if (value != _newPasswordController.text) {
+                            return 'Les mots de passe ne correspondent pas';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                    ],
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Veuillez entrer un nouveau mot de passe';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
                 Center(
                   child: ElevatedButton(
                     onPressed: () async {
                       if (_formKey.currentState!.validate()) {
-                        // modifier dans backend si vide envoyer image Url ancien
                         var data = {
                           'nom': _nomController.value.text,
                           'prenom': _prenomController.value.text,
@@ -171,17 +199,33 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                           'numTel': _numTelController.value.text,
                           'newPassword': _newPasswordController.value.text,
                         };
-                        // faire if il y a image sinon le meme lien de l'image
 
-                        await setttingsController.updateUser(
+                        if (_isChecked) {
+                          // Modifier dans backend si vide envoyer image Url ancien
+                          // await setttingsController.updateUserWithPassword(
+                          //   _nomController.value.text,
+                          //   _image!,
+                          //   _prenomController.value.text,
+                          //   _emailController.value.text,
+                          //   _numTelController.value.text,
+                          //   _newPasswordController.value.text,
+                          // );
+                        } else {
+                          // Modifier dans backend si vide envoyer image Url ancien
+                          await setttingsController.updateUser(
                             _nomController.value.text,
                             _image!,
                             _prenomController.value.text,
                             _emailController.value.text,
                             _numTelController.value.text,
-                            _newPasswordController.value.text);
+                            '',
+                          );
+                        }
 
                         homeController.image.value = _image!;
+                        homeController.nom.value = _nomController.value.text;
+                        homeController.email.value =
+                            _emailController.value.text;
                       }
                     },
                     child: const Text('Modifier'),

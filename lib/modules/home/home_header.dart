@@ -38,34 +38,40 @@ class _HomeHeaderState extends State<HomeHeader> {
       width: double.infinity,
       height: 200,
       padding: const EdgeInsets.only(top: 20.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            margin: const EdgeInsets.only(bottom: 10),
-            height: 70,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              image: DecorationImage(
-                image: homeController.image.value.path.isNotEmpty
-                    ? FileImage(File(homeController.image.value.path))
-                    : NetworkImage(user.imageURL ?? "")
-                        as ImageProvider<Object>,
+      child: Obx(
+        () => Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              margin: const EdgeInsets.only(bottom: 10),
+              height: 70,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                image: DecorationImage(
+                  image: homeController.image.value.path.isNotEmpty
+                      ? FileImage(File(homeController.image.value.path))
+                      : NetworkImage(user.imageURL ?? "")
+                          as ImageProvider<Object>,
+                ),
               ),
             ),
-          ),
-          Text(
-            user.nom ?? "",
-            style: const TextStyle(color: Colors.white, fontSize: 20),
-          ),
-          Text(
-            user.email ?? "",
-            style: TextStyle(
-              color: Colors.grey[200],
-              fontSize: 14,
+            Text(
+              homeController.nom.isEmpty
+                  ? user.nom ?? ""
+                  : homeController.nom.value,
+              style: const TextStyle(color: Colors.white, fontSize: 20),
             ),
-          ),
-        ],
+            Text(
+              homeController.email.isEmpty
+                  ? user.email ?? ""
+                  : homeController.email.value,
+              style: TextStyle(
+                color: Colors.grey[200],
+                fontSize: 14,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
