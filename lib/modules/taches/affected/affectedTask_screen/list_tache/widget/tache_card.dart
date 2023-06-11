@@ -44,6 +44,14 @@ class _TacheCardState extends State<TacheCard> {
       }
     }
 
+    String getDateFin() {
+      if (tache.dateFin!.length <= titleLengthLimit) {
+        return tache.dateFin ?? "";
+      } else {
+        return '${tache.dateFin!.substring(0, titleLengthLimit)}...';
+      }
+    }
+
     return Slidable(
       actionPane: const SlidableDrawerActionPane(),
       actionExtentRatio: 0.25,
@@ -147,7 +155,7 @@ class _TacheCardState extends State<TacheCard> {
                     height: 5.0,
                   ),
                   Text(
-                    "Chef Chantier: ali ",
+                    getDateFin(),
                     style:
                         themeData.textTheme.bodySmall?.copyWith(fontSize: 14.0),
                   ),

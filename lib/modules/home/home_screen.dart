@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mastech/modules/Note/note_screen.dart';
 import 'package:mastech/modules/chantier/list_chantier_chefChantier_screen.dart';
 
 import 'package:mastech/modules/sign_in/sign_in_controller.dart';
@@ -36,6 +37,8 @@ class _HomeState extends State<Home> {
           return Container();
         } else if (currentPage == DrawerSections.settings) {
           container = ProfileEditPage();
+        } else if (currentPage == DrawerSections.notes) {
+          container = NoteScreen();
         }
         return WillPopScope(
           // Utilisez WillPopScope pour gérer la navigation arrière
@@ -72,22 +75,24 @@ class _HomeState extends State<Home> {
         children: [
           menuItem(1, "Chantiers", Icons.dashboard_outlined,
               currentPage == DrawerSections.dashboard ? true : false),
-          menuItem(2, "Taches", Icons.people_alt_outlined,
-              currentPage == DrawerSections.contacts ? true : false),
-          menuItem(3, "Events", Icons.event,
-              currentPage == DrawerSections.events ? true : false),
+          //menuItem(2, "Taches", Icons.people_alt_outlined,
+          //  currentPage == DrawerSections.contacts ? true : false),
+          //menuItem(3, "Events", Icons.event,
+          //    currentPage == DrawerSections.events ? true : false),
+          const Divider(),
           menuItem(4, "Notes", Icons.notes,
               currentPage == DrawerSections.notes ? true : false),
           const Divider(),
           menuItem(5, "Mon compte", Icons.settings_outlined,
               currentPage == DrawerSections.settings ? true : false),
-          menuItem(6, "Notifications", Icons.notifications_outlined,
-              currentPage == DrawerSections.notifications ? true : false),
+          //menuItem(6, "Notifications", Icons.notifications_outlined,
+          //  currentPage == DrawerSections.notifications ? true : false),
+          //const Divider(),
+          //menuItem(7, "Privacy policy", Icons.privacy_tip_outlined,
+          //  currentPage == DrawerSections.privacy_policy ? true : false),
+          //menuItem(8, "Send feedback", Icons.feedback_outlined,
+          //currentPage == DrawerSections.send_feedback ? true : false),
           const Divider(),
-          menuItem(7, "Privacy policy", Icons.privacy_tip_outlined,
-              currentPage == DrawerSections.privacy_policy ? true : false),
-          menuItem(8, "Send feedback", Icons.feedback_outlined,
-              currentPage == DrawerSections.send_feedback ? true : false),
           menuItem(9, "Deconnexion", Icons.logout,
               currentPage == DrawerSections.logout ? true : false),
         ],
@@ -104,20 +109,10 @@ class _HomeState extends State<Home> {
           setState(() {
             if (id == 1) {
               currentPage = DrawerSections.dashboard;
-            } else if (id == 2) {
-              currentPage = DrawerSections.contacts;
-            } else if (id == 3) {
-              currentPage = DrawerSections.events;
             } else if (id == 4) {
               currentPage = DrawerSections.notes;
             } else if (id == 5) {
               currentPage = DrawerSections.settings;
-            } else if (id == 6) {
-              currentPage = DrawerSections.notifications;
-            } else if (id == 7) {
-              currentPage = DrawerSections.privacy_policy;
-            } else if (id == 8) {
-              currentPage = DrawerSections.send_feedback;
             } else if (id == 9) {
               currentPage = DrawerSections.logout;
             }
@@ -154,12 +149,9 @@ class _HomeState extends State<Home> {
 
 enum DrawerSections {
   dashboard,
-  contacts,
-  events,
+
   notes,
   settings,
-  notifications,
-  privacy_policy,
-  send_feedback,
+
   logout
 }

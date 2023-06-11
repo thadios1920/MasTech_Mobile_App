@@ -8,6 +8,7 @@ class Utilisateur {
   String? email;
   String? cin;
   String? role;
+  String? note;
 
   Utilisateur(
       {this.id,
@@ -30,6 +31,7 @@ class Utilisateur {
     email = json['email'];
     cin = json['cin'];
     role = json['role'];
+    note = json['note'];
   }
 
   Map<String, dynamic> toJson() {
@@ -43,6 +45,7 @@ class Utilisateur {
     data['email'] = email;
     data['cin'] = cin;
     data['role'] = role;
+    data['note'] = note;
     return data;
   }
 

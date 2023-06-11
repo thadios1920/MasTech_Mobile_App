@@ -15,6 +15,7 @@ class PlanEditingController extends GetxController {
     super.onInit();
     etage.value = Get.arguments['etage'];
     plan.value = Get.arguments['plan'];
+    getElementsWithZones();
     getImage();
   }
 
@@ -52,7 +53,6 @@ class PlanEditingController extends GetxController {
     for (int i = 0; i < listElems.length; i++) {
       element.Element e = listElems[i];
       if (e.id == idElem) {
-        // Comparer les champs de l'élément du paramètre avec ceux de l'élément de la liste
         if (e.largeur != elem.largeur) {
           e.largeur = elem.largeur;
         }
@@ -62,9 +62,8 @@ class PlanEditingController extends GetxController {
         if (e.phase != elem.phase) {
           e.phase = elem.phase;
         }
-        // Ajouter d'autres conditions pour les champs à conserver sans modification
 
-        break; // Sortir de la boucle après avoir trouvé et modifié l'élément
+        break;
       }
     }
   }
@@ -135,5 +134,31 @@ class PlanEditingController extends GetxController {
     } catch (e) {
       print('Error retrieving image: $e');
     }
+  }
+
+  Future<Map<element.Element, Zone>> getElementsWithZones() async {
+    Map<element.Element, Zone> elementsWithZones = {};
+
+    try {
+      List<element.Element> listElems = await PlanEditingService.getElements(
+          "/etages/${etage.value.id}/elements");
+
+      for (var element in listElems) {
+        var zone =
+            await PlanEditingService.getZone("/elements/${element.id}/zone");
+        Zone newZone = Zone(
+            id: zone['id'],
+            x: int.parse(zone['x']),
+            y: int.parse(zone['y']),
+            width: int.parse(zone['width']),
+            height: int.parse(zone['height']));
+
+        elementsWithZones[element] = newZone;
+      }
+    } catch (e) {
+      print(e);
+    }
+
+    return elementsWithZones;
   }
 }

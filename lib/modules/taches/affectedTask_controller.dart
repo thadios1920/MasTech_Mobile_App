@@ -15,13 +15,13 @@ class AffectedTaskController extends GetxController {
     super.onInit();
     chantier.value = Get.arguments;
 
-    getChefChantiers();
     getRole();
   }
 
   getRole() async {
     LoginDetails details = await SharedService().getLoginDetails();
     if (details.user!.role!.compareTo("chefProjet") == 0) {
+      getChefChantiers();
       getTaches('/chantiers/${chantier.value.id}/taches');
     } else {
       getTaches(

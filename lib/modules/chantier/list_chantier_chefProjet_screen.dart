@@ -16,6 +16,17 @@ class ListChantierChefProjet extends StatefulWidget {
 
 class _ListChantierChefProjetState extends State<ListChantierChefProjet> {
   final ChantierController chantierController = Get.put(ChantierController());
+  final _searchController = TextEditingController();
+
+  void _search(String value) {
+    List<Chantier> results = [];
+    results = chantierController.chantiersList
+        .where((ch) => ch.nom!.toLowerCase().contains(value.toLowerCase()))
+        .toList();
+    setState(() {
+      chantierController.displayList.value = results;
+    });
+  }
 
   _buildChantier(Chantier chantier) {
     return GestureDetector(
@@ -130,30 +141,53 @@ class _ListChantierChefProjetState extends State<ListChantierChefProjet> {
                 delegate: SliverChildBuilderDelegate(
                   (BuildContext context, int index) {
                     if (index == 0) {
-                      return Container(
-                        margin:
-                            const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 10.0),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Colors.black12,
-                              offset: Offset(0, 2),
-                              blurRadius: 6.0,
+                      return Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: TextField(
+                              style: const TextStyle(color: Colors.black),
+                              onChanged: (value) {
+                                _search(value);
+                              },
+                              controller: _searchController,
+                              decoration: const InputDecoration(
+                                fillColor: Colors.white10,
+                                filled: true,
+                                prefixIcon: Icon(Icons.search),
+                                hintStyle: TextStyle(color: Colors.black),
+                                hintText: "Rechercher Chantier",
+                              ),
                             ),
-                          ],
-                          borderRadius: BorderRadius.circular(10.0),
-                        ),
-                        child: BarChart(chantierController.chantiersList),
+                          ),
+                          Container(
+                            margin: const EdgeInsets.fromLTRB(
+                                20.0, 20.0, 20.0, 10.0),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              boxShadow: const [
+                                BoxShadow(
+                                  color: Colors.black12,
+                                  offset: Offset(0, 2),
+                                  blurRadius: 6.0,
+                                ),
+                              ],
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            child: BarChart(chantierController.chantiersList),
+                          ),
+                          const SizedBox(
+                              height: 10), // Espace entre les widgets
+                        ],
                       );
                     } else {
                       final Chantier chantier =
-                          chantierController.chantiersList[index - 1];
+                          chantierController.displayList[index - 1];
 
                       return _buildChantier(chantier);
                     }
                   },
-                  childCount: 1 + chantierController.chantiersList.length,
+                  childCount: 1 + chantierController.displayList.length,
                 ),
               ),
             ],

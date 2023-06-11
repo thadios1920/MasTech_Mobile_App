@@ -19,6 +19,7 @@ class ChantierController extends GetxController {
   var chantiersList = <Chantier>[].obs;
 
   var isChefProjet = false.obs;
+  var displayList = <Chantier>[].obs;
 
   var route = ''.obs;
 
@@ -43,6 +44,7 @@ class ChantierController extends GetxController {
         for (var c in chantiers) {
           chantiersList.add(c);
         }
+        displayList.value = chantiersList;
       }
     } finally {
       isLoading(false);
