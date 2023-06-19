@@ -19,12 +19,12 @@ class Plan {
     return data;
   }
 
-  static List<Plan> planFromJSON(List planJSON) {
-    return planJSON.map((data) {
-      return Plan.fromJson(data);
-    }).toList();
-  }
-  // static Plan planFromJSON(planJSON) {
-  //   return Plan.fromJson(planJSON);
+  // static List<Plan> planFromJSON(List planJSON) {
+  //   return planJSON.map((data) {
+  //     return Plan.fromJson(data);
+  //   }).toList();
   // }
+  static Plan planFromJSON(planJSON) {
+    return Plan.fromJson(planJSON);
+  }
 }

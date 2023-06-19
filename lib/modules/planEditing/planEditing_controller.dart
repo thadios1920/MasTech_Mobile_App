@@ -15,7 +15,7 @@ class PlanEditingController extends GetxController {
     super.onInit();
     etage.value = Get.arguments['etage'];
     plan.value = Get.arguments['plan'];
-    getElementsWithZones();
+    // getElementsWithZones();
     getImage();
   }
 
@@ -28,28 +28,82 @@ class PlanEditingController extends GetxController {
   var lesZones = <Zone>[].obs;
   var listElems = <element.Element>[].obs;
   var notZonedElems = <element.Element>[].obs;
-  var zonesList = [].obs;
+  // pour convertire les zones apportées de API a Rect
+  var elementZoneRectMap = <element.Element, Map<Zone, Rect>>{}.obs;
 
   int selectedZoneIndex = -1.obs;
   var rects = <Rect>[].obs;
 
-  // Methode pour ajouter une zone
   createZone(Zone zone, idElement) async {
-    await PlanEditingService.ajouterZone('/zones/element/$idElement', zone);
+    try {
+      var idZone = await PlanEditingService.ajouterZone(
+          '/zones/element/$idElement', zone);
+      await PlanEditingService.affecterElement('/elements/$idElement/affecte');
+      print('1:$elementZoneRectMap');
+      Zone newZone = Zone(
+          id: idZone,
+          elementId: zone.elementId,
+          height: zone.height,
+          width: zone.width,
+          x: zone.x,
+          y: zone.y);
 
-    zones.add(Rect.fromLTWH(zone.x!.toDouble(), zone.y!.toDouble(),
-        zone.width!.toDouble(), zone.height!.toDouble()));
+      element.Element matchingElement = element.Element();
+      Rect rect = Rect.zero;
+
+      for (var elem in listElems) {
+        if (elem.id.toString() == idElement) {
+          rect = Rect.fromLTWH(zone.x!.toDouble(), zone.y!.toDouble(),
+              zone.width!.toDouble(), zone.height!.toDouble());
+          zones.add(rect);
+          matchingElement = elem;
+          // notZonedElems.remove(elem);
+        }
+      }
+
+      if (matchingElement != null) {
+        elementZoneRectMap[matchingElement] = {newZone: rect};
+      }
+
+      print('2:$elementZoneRectMap');
+    } catch (e) {
+      throw (e);
+    }
   }
 
-  Future<void> supprimerZone(Zone zone) async {
+  Future<void> supprimerZone(Zone zone, element.Element elem) async {
     await PlanEditingService.supprimmerZone('/zones/${zone.id}');
-    zones.remove(Rect.fromLTWH(zone.x!.toDouble(), zone.y!.toDouble(),
-        zone.width!.toDouble(), zone.height!.toDouble()));
+
+    var updatedMap = <element.Element, Map<Zone, Rect>>{};
+    var updatedZones =
+        List<Rect>.from(zones); // Crée une nouvelle liste mise à jour
+
+    for (var entry in elementZoneRectMap.entries) {
+      var element = entry.key;
+      var zonesRectMap = entry.value;
+
+      if (!zonesRectMap.containsKey(zone)) {
+        updatedMap[element] = zonesRectMap;
+      } else {
+        // Remplacer la Rect par un objet vide Rect()
+        var index = updatedZones.indexOf(zonesRectMap[zone]!);
+        updatedZones[index] = Rect.zero;
+      }
+    }
+
+    elementZoneRectMap.value = updatedMap;
+    zones.value = updatedZones;
+
+    // Recherche de l'élément dans listElems et mise à jour de son attribut "affecte"
+    var elementToRemove =
+        listElems.firstWhere((element) => element.id == elem.id);
+    elementToRemove.affecte = false;
+    // notZonedElems.add(elementToRemove);
   }
 
   Future<void> updateElement(element.Element elem, int idElem) async {
     await PlanEditingService.modifierElement('/elements/$idElem', elem);
-
+    print(elem);
     for (int i = 0; i < listElems.length; i++) {
       element.Element e = listElems[i];
       if (e.id == idElem) {
@@ -69,46 +123,38 @@ class PlanEditingController extends GetxController {
   }
 
   Future<void> affecterElement(int idElem) async {
-    await PlanEditingService.affecterElement('/elements/$idElem/affecte');
+    try {
+      await PlanEditingService.affecterElement('/elements/$idElem/affecte');
+    } catch (e) {
+      throw (e);
+    }
   }
 
-  Future<void> getListZones() async {
+  Future<void> getMap() async {
     try {
-      for (var i = 0; i < listElems.length; i++) {
-        var zone = await PlanEditingService.getZone(
-            "/elements/${listElems[i].id}/zone");
-
-        zonesList.add(zone);
-
-        Zone newZone = Zone(
-            id: zonesList[i]['id'],
-            x: int.parse(zonesList[i]['x']),
-            y: int.parse(zonesList[i]['y']),
-            width: int.parse(zonesList[i]['width']),
-            height: int.parse(zonesList[i]['height']));
-        lesZones.add(newZone);
+      listElems.value = await PlanEditingService.getElements(
+          "/etages/${etage.value.id}/elements");
+      if (listElems.isNotEmpty) {
+        for (var elem in listElems) {
+          if (elem.affecte == false) {
+            notZonedElems.add(elem);
+          } else {
+            var zone =
+                await PlanEditingService.getZone("/elements/${elem.id}/zone");
+            var rect = Rect.fromLTWH(zone.x!.toDouble(), zone.y!.toDouble(),
+                zone.width!.toDouble(), zone.height!.toDouble());
+            zones.add(rect);
+            elementZoneRectMap[elem] = {zone: rect};
+          }
+        }
       }
     } catch (e) {
       print(e);
     }
   }
 
-  Future<void> getElements() async {
-    listElems.value = await PlanEditingService.getElements(
-        "/etages/${etage.value.id}/elements");
-
-    if (listElems.isNotEmpty) {
-      await getListZones();
-      for (var elem in listElems) {
-        if (elem.affecte == false) {
-          notZonedElems.add(elem);
-        }
-      }
-    }
-  }
-
   Future<void> getImage() async {
-    await getElements();
+    await getMap();
 
     try {
       final response = await http.get(Uri.parse(plan.value));
@@ -116,12 +162,6 @@ class PlanEditingController extends GetxController {
         if (response.headers['content-type']?.startsWith('image') ?? false) {
           try {
             image.value = File.fromRawPath(response.bodyBytes);
-
-            zones.addAll(lesZones.map((zone) => Rect.fromLTWH(
-                zone.x!.toDouble(),
-                zone.y!.toDouble(),
-                zone.width!.toDouble(),
-                zone.height!.toDouble())));
           } catch (e) {
             print('Error creating File object: $e'); // Debugging statement
           }
@@ -136,29 +176,14 @@ class PlanEditingController extends GetxController {
     }
   }
 
-  Future<Map<element.Element, Zone>> getElementsWithZones() async {
-    Map<element.Element, Zone> elementsWithZones = {};
-
-    try {
-      List<element.Element> listElems = await PlanEditingService.getElements(
-          "/etages/${etage.value.id}/elements");
-
-      for (var element in listElems) {
-        var zone =
-            await PlanEditingService.getZone("/elements/${element.id}/zone");
-        Zone newZone = Zone(
-            id: zone['id'],
-            x: int.parse(zone['x']),
-            y: int.parse(zone['y']),
-            width: int.parse(zone['width']),
-            height: int.parse(zone['height']));
-
-        elementsWithZones[element] = newZone;
+  String getElementFromRect(Rect rect) {
+    for (var entry in elementZoneRectMap.entries) {
+      var element = entry.key;
+      var zoneRectMap = entry.value;
+      if (zoneRectMap.containsValue(rect)) {
+        return element.reference ?? "";
       }
-    } catch (e) {
-      print(e);
     }
-
-    return elementsWithZones;
+    return "null";
   }
 }

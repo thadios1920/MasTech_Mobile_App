@@ -23,7 +23,7 @@ class PlanEditingService {
 
     if (response.statusCode == 200) {
       var data = jsonDecode(response.body);
-      return (data);
+      return Zone.fromJson(data);
     } else {
       throw Exception('Failed to load Zone');
     }
@@ -90,7 +90,8 @@ class PlanEditingService {
 
     if (response.statusCode == 201) {
       // si la création est réussie, retourne la zone créée
-      return jsonDecode(response.body);
+
+      return (jsonDecode(response.body)['id']);
     } else {
       // si la création a échoué, lève une exception avec le message d'erreur
       throw Exception('Failed to add zone.');

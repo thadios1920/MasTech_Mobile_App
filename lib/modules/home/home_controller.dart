@@ -18,11 +18,9 @@ class HomeController extends GetxController {
   var email = ''.obs;
 
   getRole() async {
-    print('not chefProjet');
     LoginDetails details = await SharedService().getLoginDetails();
     if (details.user!.role!.compareTo("chefProjet") == 0) {
       isChefProjet.value = true;
-      print('isChefProjet');
     }
   }
 }

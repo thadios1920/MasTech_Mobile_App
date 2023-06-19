@@ -216,6 +216,7 @@ class _TacheDetailState extends State<TacheDetail> {
                                                   );
                                                   affectedTaskController.image
                                                       .value = _imageFile!;
+
                                                   ScaffoldMessenger.of(context)
                                                       .showSnackBar(
                                                     const SnackBar(

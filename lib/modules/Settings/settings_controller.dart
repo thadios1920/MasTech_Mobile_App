@@ -20,14 +20,8 @@ class SettingsController extends GetxController {
       String numTel, String password) async {
     try {
       isLoading(true);
-      SettingsService().modifierProfile(
-          imageFile,
-          '/chefProjets/${user.value.id}',
-          nom,
-          prenom,
-          email,
-          numTel,
-          password);
+      SettingsService().modifierProfile(imageFile, '/accounts/${user.value.id}',
+          nom, prenom, email, numTel, password);
     } finally {
       isLoading(false);
     }

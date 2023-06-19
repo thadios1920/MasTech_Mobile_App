@@ -119,8 +119,9 @@ class AffectedTaskController extends GetxController {
       desc,
     );
 
-    for (int i = 0; i < tachesList.length; i++) {
+    for (int i = 0; i < displayList.length; i++) {
       if (tachesList[i].id == idTask) {
+        print('inRectif');
         displayList[i].type = 'rectification';
         image.value = imageFile;
         // displayList.removeAt(i); // Suppression de la tâche de la liste

@@ -131,20 +131,9 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Padding(
                 padding: const EdgeInsets.only(right: 25, top: 10),
                 child: RichText(
-                    text: TextSpan(
-                        style:
-                            const TextStyle(color: Colors.grey, fontSize: 14.0),
-                        children: <TextSpan>[
-                      TextSpan(
-                          text: 'Mot de passe oublié ?',
-                          style: const TextStyle(
-                              color: Colors.white,
-                              decoration: TextDecoration.underline),
-                          recognizer: TapGestureRecognizer()
-                            ..onTap = () {
-                              print("forget Pass");
-                            })
-                    ])),
+                    text: const TextSpan(
+                        style: TextStyle(color: Colors.grey, fontSize: 14.0),
+                        children: <TextSpan>[])),
               ),
             ),
             const SizedBox(

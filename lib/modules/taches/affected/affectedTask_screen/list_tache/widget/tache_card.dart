@@ -34,7 +34,7 @@ class _TacheCardState extends State<TacheCard> {
   Widget build(BuildContext context) {
     Tache tache = widget.tache;
     ThemeData themeData = Theme.of(context);
-    final titleLengthLimit = 10; // Limite de la longueur du titre
+    final titleLengthLimit = 7; // Limite de la longueur du titre
 
     String getTitleText() {
       if (tache.titre!.length <= titleLengthLimit) {

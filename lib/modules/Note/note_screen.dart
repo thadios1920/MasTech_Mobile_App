@@ -18,13 +18,15 @@ class _NoteScreenState extends State<NoteScreen> {
         onTap: () {
           FocusScope.of(context).unfocus();
         },
-        child: Container(
-          color: Colors.white,
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(16.0),
-            child: Text(
-              noteController.noteText.value,
-              style: const TextStyle(fontSize: 18.0),
+        child: Obx(
+          () => Container(
+            color: Colors.white,
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(
+                noteController.noteText.value,
+                style: const TextStyle(fontSize: 18.0),
+              ),
             ),
           ),
         ),
@@ -42,18 +44,33 @@ class _NoteScreenState extends State<NoteScreen> {
                   ),
                   child: Container(
                     padding: const EdgeInsets.all(16.0),
-                    child: TextField(
-                      onChanged: (value) {
-                        setState(() {
-                          noteController.noteText.value = value;
-                        });
-                      },
-                      autofocus: true,
-                      maxLines: null,
-                      decoration: const InputDecoration(
-                        hintText: 'Écrivez votre note...',
-                        border: OutlineInputBorder(),
-                      ),
+                    child: Column(
+                      children: [
+                        TextField(
+                          onChanged: (value) {
+                            setState(() {
+                              noteController.auxNote.value = value;
+                            });
+                          },
+                          autofocus: true,
+                          maxLines: null,
+                          decoration: const InputDecoration(
+                            hintText: 'Écrivez votre note...',
+                            border: OutlineInputBorder(),
+                          ),
+                        ),
+                        SizedBox(height: 16.0),
+                        ElevatedButton.icon(
+                          onPressed: () {
+                            // Sauvegarder la nouvelle note
+                            noteController
+                                .saveNote(noteController.auxNote.value);
+                            Navigator.pop(context);
+                          },
+                          icon: Icon(Icons.check),
+                          label: Text('Enregistrer'),
+                        ),
+                      ],
                     ),
                   ),
                 ),

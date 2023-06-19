@@ -40,7 +40,9 @@ class EtageController extends GetxController {
       for (var i = 0; i < etagesList.length; i++) {
         var plan =
             await EtageService.getPlan("/etages/${etagesList[i].id}/plan");
-        planList.add(plan);
+        if (plan != null) {
+          planList.add(plan);
+        }
       }
     } catch (e) {
       print(e);

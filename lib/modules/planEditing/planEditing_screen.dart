@@ -26,156 +26,153 @@ class _ImageZoningPageState extends State<ImageZoningPage> {
   Offset? start;
   Offset? end;
 
-  void _showMessage(int index) {
-    // Afficher un message en fonction de l'index de la zone cliquée
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: Text('Element : ${pec.listElems[index].reference}'),
-        content: Obx(
-          () => Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Text('Hauteur: ${pec.listElems[index].hauteur} m '),
-              Text('Largeur: ${pec.listElems[index].largeur} m '),
-              Text('Surface:${pec.listElems[index].surface} m²'),
-              Text('Gamme:${pec.listElems[index].gamme}'),
-              Text(
-                'Phase:${pec.listElems[index].phase}',
-                style: TextStyle(
-                    color: pec.listElems[index].phase == 'estimation'
-                        ? Colors.lime
-                        : pec.listElems[index].phase == 'elaboration'
-                            ? Colors.pink
-                            : pec.listElems[index].phase == 'fabrication'
-                                ? Colors.green
-                                : Colors.black),
-              )
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () async {
-              pec.supprimerZone(pec.lesZones[index]);
-              Navigator.pop(context);
-            },
-            child: const Text(
-              'Supprimer',
-              style: TextStyle(color: Colors.red),
-            ),
-          ),
-          TextButton(
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (_) => AlertDialog(
-                  title: Text('Modifier ${pec.listElems[index].reference}'),
-                  content: Obx(
-                    () => Form(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: <Widget>[
-                          TextFormField(
-                            controller: _largeurController,
-                            // initialValue: pec.listElems[index].largeur,
-                            decoration: const InputDecoration(
-                              labelText: 'Largeur',
-                            ),
-                            keyboardType: TextInputType
-                                .number, // Utiliser le clavier numérique
-                            inputFormatters: <TextInputFormatter>[
-                              FilteringTextInputFormatter.allow(RegExp(
-                                  r'[0-9.]')), // Permettre uniquement les chiffres et le point décimal
-                            ],
-                            onChanged: (value) {
-                              pec.isButtonEnabled.value =
-                                  _largeurController.text.isNotEmpty ||
-                                      _hauteurController.text.isNotEmpty ||
-                                      _selectedPhase != null;
-                            },
-                          ),
-                          TextFormField(
-                            controller: _hauteurController,
-                            //initialValue: pec.listElems[index].hauteur,
-                            decoration: const InputDecoration(
-                              labelText: 'Hauteur',
-                            ),
-                            keyboardType: TextInputType
-                                .number, // Utiliser le clavier numérique
-                            inputFormatters: <TextInputFormatter>[
-                              FilteringTextInputFormatter.allow(RegExp(
-                                  r'[0-9.]')), // Permettre uniquement les chiffres et le point décimal
-                            ],
-                            onChanged: (value) {
-                              pec.isButtonEnabled.value =
-                                  _largeurController.text.isNotEmpty ||
-                                      _hauteurController.text.isNotEmpty ||
-                                      _selectedPhase != null;
-                            },
-                          ),
-                          DropdownButton<String>(
-                            hint: const Text("Phase"),
-                            value: _selectedPhase,
-                            onChanged: (newValue) {
-                              setState(() {
-                                _selectedPhase = newValue!;
-                                pec.isButtonEnabled.value =
-                                    _largeurController.text.isNotEmpty ||
-                                        _hauteurController.text.isNotEmpty ||
-                                        _selectedPhase != null;
-                              });
-                            },
-                            items: phases.map((String option) {
-                              return DropdownMenuItem<String>(
-                                value: option,
-                                child: Text(option),
-                              );
-                            }).toList(),
-                          ),
-                          ElevatedButton(
-                            onPressed: pec.isButtonEnabled.value
-                                ? () async {
-                                    try {
-                                      element.Element data = element.Element(
-                                        reference:
-                                            pec.listElems[index].reference,
-                                        id: pec.listElems[index].id,
-                                        phase: _selectedPhase,
-                                        surface: _surfaceController.text,
-                                        gamme: pec.listElems[index].gamme,
-                                        hauteur: _hauteurController.text,
-                                        largeur: _largeurController.text,
-                                        etageId: pec.listElems[index].etageId,
-                                      );
-                                      await pec.updateElement(
-                                          data, pec.listElems[index].id!);
-                                    } catch (e) {
-                                      throw (e);
-                                    }
-
-                                    Navigator.pop(context);
-                                  }
-                                : null, // Désactiver le bouton si aucun champ n'est rempli
-                            child: const Text('Soumettre'),
-                          ),
-                        ],
-                      ),
+  void _showMessage(Rect rect) {
+    pec.elementZoneRectMap.forEach((elem, zoneRectMap) {
+      zoneRectMap.forEach((zone, zoneRect) {
+        if (zoneRect == rect) {
+          showDialog(
+            context: context,
+            builder: (_) => AlertDialog(
+              title: Text('Element : ${elem.reference}'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Text('Hauteur: ${elem.hauteur} m'),
+                  Text('Largeur: ${elem.largeur} m'),
+                  Text('Surface: ${elem.surface} m²'),
+                  Text('Gamme: ${elem.gamme}'),
+                  Text(
+                    'Phase: ${elem.phase}',
+                    style: TextStyle(
+                      color: elem.phase == 'estimation'
+                          ? Colors.lime
+                          : elem.phase == 'elaboration'
+                              ? Colors.pink
+                              : elem.phase == 'fabrication'
+                                  ? Colors.green
+                                  : Colors.black,
                     ),
                   ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () async {
+                    await pec.supprimerZone(zone, elem);
+                    Navigator.pop(context);
+                  },
+                  child: const Text(
+                    'Supprimer',
+                    style: TextStyle(color: Colors.red),
+                  ),
                 ),
-              );
-            },
-            child: const Text('Modifier'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
+                TextButton(
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (_) => AlertDialog(
+                        title: Text('Modifier ${elem.reference}'),
+                        content: Form(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: <Widget>[
+                              TextFormField(
+                                // controller: _largeurController,
+                                initialValue: elem.largeur,
+                                decoration: const InputDecoration(
+                                  labelText: 'Largeur',
+                                ),
+                                keyboardType: TextInputType.number,
+                                inputFormatters: <TextInputFormatter>[
+                                  FilteringTextInputFormatter.allow(
+                                      RegExp(r'[0-9.]')),
+                                ],
+                                onChanged: (value) {
+                                  pec.isButtonEnabled.value =
+                                      _largeurController.text.isNotEmpty ||
+                                          _hauteurController.text.isNotEmpty ||
+                                          _selectedPhase != null;
+                                },
+                              ),
+                              TextFormField(
+                                // controller: _hauteurController,
+                                initialValue: elem.hauteur,
+                                decoration: const InputDecoration(
+                                  labelText: 'Hauteur',
+                                ),
+                                keyboardType: TextInputType.number,
+                                inputFormatters: <TextInputFormatter>[
+                                  FilteringTextInputFormatter.allow(
+                                      RegExp(r'[0-9.]')),
+                                ],
+                                onChanged: (value) {
+                                  pec.isButtonEnabled.value =
+                                      _largeurController.text.isNotEmpty ||
+                                          _hauteurController.text.isNotEmpty ||
+                                          _selectedPhase != null;
+                                },
+                              ),
+                              DropdownButton<String>(
+                                hint: const Text("Phase"),
+                                value: _selectedPhase,
+                                onChanged: (newValue) {
+                                  setState(() {
+                                    _selectedPhase = newValue!;
+                                    pec.isButtonEnabled.value =
+                                        _largeurController.text.isNotEmpty ||
+                                            _hauteurController
+                                                .text.isNotEmpty ||
+                                            _selectedPhase != null;
+                                  });
+                                },
+                                items: phases.map((String option) {
+                                  return DropdownMenuItem<String>(
+                                    value: option,
+                                    child: Text(option),
+                                  );
+                                }).toList(),
+                              ),
+                              ElevatedButton(
+                                onPressed: () async {
+                                  try {
+                                    element.Element data = element.Element(
+                                      reference: elem.reference,
+                                      id: elem.id,
+                                      phase: _selectedPhase,
+                                      surface: _surfaceController.text,
+                                      gamme: elem.gamme,
+                                      hauteur: _hauteurController.text,
+                                      largeur: _largeurController.text,
+                                      etageId: elem.etageId,
+                                    );
+                                    await pec.updateElement(data, elem.id!);
+                                  } catch (e) {
+                                    throw (e);
+                                  }
+
+                                  Navigator.pop(context);
+                                },
+                                child: const Text('Soumettre'),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                  child: const Text('Modifier'),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('OK'),
+                ),
+              ],
+            ),
+          );
+        }
+      });
+    });
   }
 
   @override
@@ -191,133 +188,132 @@ class _ImageZoningPageState extends State<ImageZoningPage> {
               : Column(
                   children: [
                     if (pec.image != null) ...[
-                      // Block du code qui est responsable de l'image editing
                       GestureDetector(
-                          //Methode pour capturer un clique et affiche les details
-                          onTapUp: (details) {
-                            // Parcourir toutes les zones et vérifier si le clic est à l'intérieur de l'une d'entre elles
-                            for (int i = 0; i < pec.zones.length; i++) {
-                              if (pec.zones[i]
-                                  .contains(details.localPosition)) {
-                                _showMessage(i);
-                                break;
+                        onTapUp: (details) {
+                          pec.elementZoneRectMap
+                              .forEach((element, zoneRectMap) {
+                            zoneRectMap.forEach((zone, rect) {
+                              if (rect.contains(details.localPosition)) {
+                                _showMessage(rect);
                               }
-                            }
-                          },
-                          child: Stack(
-                            children: [
-                              OrientationBuilder(
-                                builder: (context, orientation) {
-                                  return Image.network(
-                                    pec.plan.value,
-                                    fit: orientation == Orientation.portrait
-                                        ? BoxFit.cover
-                                        : BoxFit.contain,
-                                  );
-                                },
-                              ),
-
-                              //Code des nouvelles boxes
-                              GestureDetector(
-                                onPanStart: (details) {
-                                  start = details.localPosition;
+                            });
+                          });
+                        },
+                        child: Stack(
+                          children: [
+                            // RotatedBox(
+                            //   quarterTurns:
+                            //       1, // Effectue une rotation de 90 degrés (horizontalement)
+                            //   child: Image.network(
+                            //     pec.plan.value,
+                            //     fit: BoxFit.cover,
+                            //   ),
+                            // ),
+                            GestureDetector(
+                              onPanStart: (details) {
+                                start = details.localPosition;
+                                setState(() {
+                                  pec.selectedZoneIndex = -1;
+                                });
+                              },
+                              onPanEnd: (details) {
+                                if (start != null && end != null) {
                                   setState(() {
-                                    pec.selectedZoneIndex = -1;
+                                    final rect = Rect.fromPoints(start!, end!);
+                                    if (!pec.rects
+                                            .any((box) => box.overlaps(rect)) &&
+                                        !pec.zones
+                                            .any((box) => box.overlaps(rect))) {
+                                      pec.rects.add(rect);
+                                    } else {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                          content: Text('Zone déjà utilisée !'),
+                                        ),
+                                      );
+                                    }
+                                    start = null;
+                                    end = null;
                                   });
-                                },
-                                onPanEnd: (details) {
-                                  if (start != null && end != null) {
-                                    setState(() {
-                                      final rect =
-                                          Rect.fromPoints(start!, end!);
-                                      if (!pec.rects.any(
-                                              (box) => box.overlaps(rect)) &&
-                                          !pec.zones.any(
-                                              (box) => box.overlaps(rect))) {
-                                        pec.rects.add(rect);
-                                      } else {
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(const SnackBar(
-                                                content: Text(
-                                                    'Zone déjà utilisé !! ')));
-                                      }
-                                      start = null;
-                                      end = null;
-                                    });
-                                  }
-                                },
-                                onPanUpdate: (details) {
-                                  end = details.localPosition;
-                                  setState(() {});
-                                },
-                                child: Stack(
-                                  children: <Widget>[
-                                    Image.network(
+                                }
+                              },
+                              onPanUpdate: (details) {
+                                end = details.localPosition;
+                                setState(() {});
+                              },
+                              child: Stack(
+                                children: <Widget>[
+                                  RotatedBox(
+                                    quarterTurns:
+                                        1, // Effectue une rotation de 90 degrés (horizontalement)
+                                    child: Image.network(
                                       pec.plan.value,
                                       fit: BoxFit.cover,
                                     ),
-                                    ...pec.rects.asMap().entries.map((entry) {
-                                      final index = entry.key;
-                                      final rect = entry.value;
-                                      return Positioned.fromRect(
-                                        rect: rect,
-                                        child: Stack(
-                                          children: [
-                                            if (pec.selectedZoneIndex == index)
-                                              Container(
-                                                decoration: BoxDecoration(
+                                  ),
+                                  ...pec.rects.asMap().entries.map((entry) {
+                                    final index = entry.key;
+                                    final rect = entry.value;
+                                    return Positioned.fromRect(
+                                      rect: rect,
+                                      child: Stack(
+                                        children: [
+                                          if (pec.selectedZoneIndex == index)
+                                            Container(
+                                              decoration: BoxDecoration(
+                                                color: Colors.blue
+                                                    .withOpacity(0.2),
+                                                border: Border.all(
                                                   color: Colors.blue
-                                                      .withOpacity(0.2),
-                                                  border: Border.all(
-                                                    color: Colors.blue
-                                                        .withOpacity(0.8),
-                                                    width: 2,
-                                                  ),
+                                                      .withOpacity(0.8),
+                                                  width: 2,
                                                 ),
                                               ),
-                                            GestureDetector(
-                                              onPanStart: (details) {
-                                                start = details.localPosition;
+                                            ),
+                                          GestureDetector(
+                                            onPanStart: (details) {
+                                              start = details.localPosition;
+                                              setState(() {
+                                                pec.selectedZoneIndex = index;
+                                              });
+                                            },
+                                            onPanEnd: (details) {
+                                              start = null;
+                                              end = null;
+                                            },
+                                            onPanUpdate: (details) {
+                                              end = details.localPosition;
+                                              if (start != null &&
+                                                  end != null) {
+                                                final renderBox =
+                                                    context.findRenderObject()
+                                                        as RenderBox;
+                                                final startLocal = renderBox
+                                                    .globalToLocal(start!);
+                                                final endLocal = renderBox
+                                                    .globalToLocal(end!);
                                                 setState(() {
-                                                  pec.selectedZoneIndex = index;
+                                                  pec.rects[index] =
+                                                      Rect.fromPoints(
+                                                          startLocal, endLocal);
                                                 });
-                                              },
-                                              onPanEnd: (details) {
-                                                start = null;
-                                                end = null;
-                                              },
-                                              onPanUpdate: (details) {
-                                                end = details.localPosition;
-                                                if (start != null &&
-                                                    end != null) {
-                                                  final renderBox =
-                                                      context.findRenderObject()
-                                                          as RenderBox;
-                                                  final startLocal = renderBox
-                                                      .globalToLocal(start!);
-                                                  final endLocal = renderBox
-                                                      .globalToLocal(end!);
-                                                  setState(() {
-                                                    pec.rects[index] =
-                                                        Rect.fromPoints(
-                                                            startLocal,
-                                                            endLocal);
-                                                  });
-                                                }
-                                              },
-                                              onTap: () {
-                                                showDialog(
-                                                  context: context,
-                                                  builder:
-                                                      (BuildContext context) {
-                                                    return AlertDialog(
+                                              }
+                                            },
+                                            onTap: () {
+                                              showDialog(
+                                                context: context,
+                                                builder:
+                                                    (BuildContext context) {
+                                                  return Obx(
+                                                    () => AlertDialog(
                                                       title: const Text(
-                                                          'Definire l\'élement'),
+                                                          'Définir l\'élément'),
                                                       content: Form(
                                                         child: pec.notZonedElems
                                                                 .isEmpty
                                                             ? const Text(
-                                                                "Touts les élements sont affectées")
+                                                                "Aucun élément disponible")
                                                             : Column(
                                                                 mainAxisSize:
                                                                     MainAxisSize
@@ -327,7 +323,7 @@ class _ImageZoningPageState extends State<ImageZoningPage> {
                                                                   DropdownButton<
                                                                       String>(
                                                                     hint: const Text(
-                                                                        "Choisissez un element"),
+                                                                        'Choisissez un élément'),
                                                                     value:
                                                                         _selectedelem,
                                                                     onChanged:
@@ -341,43 +337,45 @@ class _ImageZoningPageState extends State<ImageZoningPage> {
                                                                     items: pec
                                                                         .notZonedElems
                                                                         .where((elem) =>
+                                                                            elem.affecte ==
+                                                                            false) // Filtrer les éléments non affectés
+                                                                        .where((elem) =>
                                                                             elem.reference !=
-                                                                            null)
-                                                                        .map<DropdownMenuItem<String>>(
-                                                                            (elem) {
-                                                                      return DropdownMenuItem<
-                                                                          String>(
-                                                                        value: elem
-                                                                            .id
-                                                                            .toString(),
-                                                                        child: Text(
-                                                                            elem.reference!),
-                                                                      );
-                                                                    }).toList(),
+                                                                            null) // Exclure les éléments sans référence
+                                                                        .map<
+                                                                            DropdownMenuItem<String>>(
+                                                                          (elem) =>
+                                                                              DropdownMenuItem<String>(
+                                                                            value:
+                                                                                elem.id.toString(),
+                                                                            child:
+                                                                                Text(elem.reference!),
+                                                                          ),
+                                                                        )
+                                                                        .toList(),
                                                                   ),
                                                                   ElevatedButton(
                                                                     onPressed:
                                                                         () async {
-                                                                      Zone z = Zone(
-                                                                          x: pec
-                                                                              .rects[
-                                                                                  index]
-                                                                              .left
-                                                                              .toInt(),
-                                                                          y: pec
-                                                                              .rects[
-                                                                                  index]
-                                                                              .top
-                                                                              .toInt(),
-                                                                          width: pec
-                                                                              .rects[
-                                                                                  index]
-                                                                              .width
-                                                                              .toInt(),
-                                                                          height: pec
-                                                                              .rects[index]
-                                                                              .height
-                                                                              .toInt());
+                                                                      Zone z =
+                                                                          Zone(
+                                                                        x: pec
+                                                                            .rects[index]
+                                                                            .left
+                                                                            .toInt(),
+                                                                        y: pec
+                                                                            .rects[index]
+                                                                            .top
+                                                                            .toInt(),
+                                                                        width: pec
+                                                                            .rects[index]
+                                                                            .width
+                                                                            .toInt(),
+                                                                        height: pec
+                                                                            .rects[index]
+                                                                            .height
+                                                                            .toInt(),
+                                                                      );
                                                                       try {
                                                                         await pec.createZone(
                                                                             z,
@@ -390,84 +388,77 @@ class _ImageZoningPageState extends State<ImageZoningPage> {
                                                                         print(
                                                                             e);
                                                                       }
-                                                                    }, //capturer dimentions zone et affecter la a l'element
+                                                                    },
                                                                     child: const Text(
                                                                         'Soumettre'),
                                                                   ),
                                                                 ],
                                                               ),
                                                       ),
-                                                    );
-                                                  },
-                                                );
-                                              },
-                                              child: Container(
-                                                decoration: BoxDecoration(
-                                                  color: Colors.transparent,
-                                                  border: Border.all(
-                                                    color: Colors.blue
-                                                        .withOpacity(0.8),
-                                                    width: 2,
-                                                  ),
+                                                    ),
+                                                  );
+                                                },
+                                              );
+                                            },
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                color: Colors.transparent,
+                                                border: Border.all(
+                                                  color: Colors.blue
+                                                      .withOpacity(0.8),
+                                                  width: 2,
                                                 ),
                                               ),
                                             ),
-                                          ],
-                                        ),
-                                      );
-                                    }).toList(),
-                                  ],
-                                ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  }).toList(),
+                                ],
                               ),
-                              //codes des boxes venenants de la API
-                              ...pec.zones.asMap().entries.map((entry) {
-                                final int index = entry.key;
-                                final Rect zone = entry.value;
-                                return Positioned(
-                                  left: zone.left,
-                                  top: zone.top,
-                                  width: zone.width,
-                                  height: zone.height,
-                                  child: Container(
-                                    decoration: pec.listElems[index].phase ==
-                                            "elaboration"
-                                        ? BoxDecoration(
-                                            color: Colors.pink.withOpacity(0.2),
-                                            border: Border.all(
-                                                color: Colors.pink, width: 2),
-                                          )
+                            ),
+                            ...pec.zones.asMap().entries.map((entry) {
+                              final int index = entry.key;
+                              final Rect zone = entry.value;
+                              return Positioned(
+                                left: zone.left,
+                                top: zone.top,
+                                width: zone.width,
+                                height: zone.height,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: pec.listElems[index].phase ==
+                                            'elaboration'
+                                        ? Colors.pink.withOpacity(0.2)
                                         : pec.listElems[index].phase ==
-                                                "estimation"
-                                            ? BoxDecoration(
-                                                color: Colors.yellow
-                                                    .withOpacity(0.2),
-                                                border: Border.all(
-                                                    color: Colors.yellow,
-                                                    width: 2),
-                                              )
+                                                'estimation'
+                                            ? Colors.yellow.withOpacity(0.2)
                                             : pec.listElems[index].phase ==
-                                                    "fabrication"
-                                                ? BoxDecoration(
-                                                    color: Colors.green
-                                                        .withOpacity(0.2),
-                                                    border: Border.all(
-                                                        color: Colors.green,
-                                                        width: 2),
-                                                  )
-                                                : BoxDecoration(
-                                                    color: Colors.blue
-                                                        .withOpacity(0.2),
-                                                    border: Border.all(
-                                                        color: Colors.blue,
-                                                        width: 2),
-                                                  ),
-                                    child: Text(
-                                        '${pec.listElems[index].reference}'),
+                                                    'fabrication'
+                                                ? Colors.green.withOpacity(0.2)
+                                                : Colors.blue.withOpacity(0.2),
+                                    border: Border.all(
+                                      color: pec.listElems[index].phase ==
+                                              'elaboration'
+                                          ? Colors.pink
+                                          : pec.listElems[index].phase ==
+                                                  'estimation'
+                                              ? Colors.yellow
+                                              : pec.listElems[index].phase ==
+                                                      'fabrication'
+                                                  ? Colors.green
+                                                  : Colors.blue,
+                                      width: 2,
+                                    ),
                                   ),
-                                );
-                              }).toList(),
-                            ],
-                          )),
+                                  child: Text(pec.getElementFromRect(zone)),
+                                ),
+                              );
+                            }).toList(),
+                          ],
+                        ),
+                      ),
                     ],
                   ],
                 ),

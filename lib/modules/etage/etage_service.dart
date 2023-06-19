@@ -50,7 +50,7 @@ class EtageService {
       var data = jsonDecode(response.body);
       return (data);
     } else {
-      throw Exception('Failed to load Plan');
+      return null;
     }
   }
 }

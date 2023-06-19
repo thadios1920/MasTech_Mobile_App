@@ -9,12 +9,12 @@ class Zone {
   Zone({this.id, this.x, this.y, this.width, this.height, this.elementId});
 
   Zone.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    x = json['x'];
-    y = json['y'];
-    width = json['width'];
-    height = json['height'];
-    elementId = json['ElementId'];
+    id = json['id'] as int?;
+    x = int.tryParse(json['x'] ?? '');
+    y = int.tryParse(json['y'] ?? '');
+    width = int.tryParse(json['width'] ?? '');
+    height = int.tryParse(json['height'] ?? '');
+    elementId = json['ElementId'] as int?;
   }
 
   Map<String, dynamic> toJson() {
@@ -28,7 +28,7 @@ class Zone {
     return data;
   }
 
-  static Zone zoneFromJSON(zoneJSON) {
-    return Zone.fromJson(zoneJSON);
+  static Zone zoneFromJSON(dynamic zoneJSON) {
+    return Zone.fromJson(zoneJSON as Map<String, dynamic>);
   }
 }

@@ -62,7 +62,7 @@ class _ListEtageState extends State<ListEtage>
                 icon: const Icon(Icons.book),
                 onPressed: () => PdfService.openFile(
                   url:
-                      'http://192.168.1.12:8080/api/v1/chefProjets/generate-rapport',
+                      'http://192.168.1.12:8080/api/v1/chefProjets/9/generate-rapport/2',
                   fileName: 'rapport-${etageController.chantier.value.nom}',
                 ),
               ),

@@ -22,7 +22,8 @@ class _CreateTaskState extends State<CreateTask> {
 
   var _selectedChefChantier;
 
-  late DateTime _selectedDate = DateTime(2022);
+  DateTime _selectedDate = DateTime.now().add(const Duration(hours: 24));
+
   final AffectedTaskController affectedTaskController =
       Get.put(AffectedTaskController());
 
@@ -160,8 +161,7 @@ class _CreateTaskState extends State<CreateTask> {
                   child: ElevatedButton(
                     onPressed: () async {
                       if (_formKey.currentState!.validate() &&
-                          _selectedChefChantier != null &&
-                          _selectedDate != null) {
+                          _selectedChefChantier != null) {
                         Tache tache = Tache(
                           titre: _titreController.text.toString(),
                           description: _descriptionController.text.toString(),
