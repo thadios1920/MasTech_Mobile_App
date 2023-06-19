@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:mastech/modules/planEditing/planEditing_controller.dart';
 import '../../models/element.dart' as element;
 import '../../models/zone.dart';
+import 'package:flutter/services.dart';
 
 class ImageZoningPage extends StatefulWidget {
   const ImageZoningPage({super.key});
@@ -78,8 +79,8 @@ class _ImageZoningPageState extends State<ImageZoningPage> {
                             mainAxisSize: MainAxisSize.min,
                             children: <Widget>[
                               TextFormField(
-                                // controller: _largeurController,
-                                initialValue: elem.largeur,
+                                controller: _largeurController,
+                                // initialValue: elem.largeur,
                                 decoration: const InputDecoration(
                                   labelText: 'Largeur',
                                 ),
@@ -96,8 +97,8 @@ class _ImageZoningPageState extends State<ImageZoningPage> {
                                 },
                               ),
                               TextFormField(
-                                // controller: _hauteurController,
-                                initialValue: elem.hauteur,
+                                controller: _hauteurController,
+                                // initialValue: elem.hauteur,
                                 decoration: const InputDecoration(
                                   labelText: 'Hauteur',
                                 ),
@@ -177,6 +178,9 @@ class _ImageZoningPageState extends State<ImageZoningPage> {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp, // Portrait orientation uniquement
+    ]);
     return Scaffold(
       appBar: AppBar(
         title: Text('Etage : ${pec.etage.value.numero}'),
@@ -337,11 +341,11 @@ class _ImageZoningPageState extends State<ImageZoningPage> {
                                                                     items: pec
                                                                         .notZonedElems
                                                                         .where((elem) =>
-                                                                            elem.affecte ==
-                                                                            false) // Filtrer les éléments non affectés
-                                                                        .where((elem) =>
+                                                                            elem.affecte == false &&
                                                                             elem.reference !=
-                                                                            null) // Exclure les éléments sans référence
+                                                                                null &&
+                                                                            elem.id !=
+                                                                                _selectedelem)
                                                                         .map<
                                                                             DropdownMenuItem<String>>(
                                                                           (elem) =>
